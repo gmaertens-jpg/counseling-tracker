@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trial Counseling Tracker | Performance & Disciplinary Analytics</title>
 
-  <!-- External Libraries: Tailwind CSS, FontAwesome, Chart.js -->
+  <!-- External Styles & Libraries -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -51,18 +51,17 @@
 
       <!-- Live Sync & Quick Actions -->
       <div class="flex items-center space-x-2.5">
-        <button id="cloud-sync-btn" onclick="openCloudConfigModal()" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-sm" title="Click to configure Cloud Sync and refresh intervals">
+        <button id="cloud-sync-btn" onclick="openCloudConfigModal()" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-sm" title="Configure Cloud Sync">
           <span id="cloud-status-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 anim-pulse"></span>
           <span id="cloud-status-text">Google Sheet Live</span>
           <span id="auto-sync-timer-badge" class="bg-slate-900/80 text-[10px] font-mono text-emerald-400 px-1.5 py-0.5 rounded border border-slate-700/60">5:00</span>
           <i id="cloud-sync-spinner" class="fa-solid fa-arrows-rotate hidden text-slate-400 anim-sync text-[11px]"></i>
         </button>
 
-        <button onclick="syncWithGoogleSheet()" title="Sync live database with Google Sheet now" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 p-2 rounded-lg text-xs transition">
+        <button onclick="syncWithGoogleSheet()" title="Sync live database with Google Sheet" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 p-2 rounded-lg text-xs transition">
           <i class="fa-solid fa-rotate"></i>
         </button>
 
-        <!-- Action Modal Buttons -->
         <div class="h-5 w-[1px] bg-slate-700 mx-1"></div>
         <button onclick="openEvaluationModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm flex items-center gap-1.5">
           <i class="fa-solid fa-clipboard-check"></i> <span class="hidden sm:inline">Log</span> Eval
@@ -202,7 +201,7 @@
           <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200 flex flex-col">
             <div class="flex justify-between items-center mb-2">
               <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">6-Competency Radar Evaluation</h4>
-              <span class="text-[11px] text-slate-500 font-medium">Net (Post-Deduction) vs Base</span>
+              <span class="text-[11px] text-slate-500 font-medium">Net vs Base</span>
             </div>
             <div class="relative flex-1 min-h-[260px] flex items-center justify-center">
               <canvas id="opRadarChart"></canvas>
@@ -440,7 +439,7 @@
             </div>
             <div>
               <h3 class="text-sm font-bold text-slate-900">Executive Operational &amp; Disciplinary Assessment</h3>
-              <p class="text-[11px] text-slate-500">Cross-tier operational review, overdue task risk diagnosis &amp; supervisory recommendations</p>
+              <p class="text-[11px] text-slate-500">Cross-tier operational review &amp; supervisory recommendations</p>
             </div>
           </div>
           <div class="flex items-center gap-2">
@@ -457,7 +456,7 @@
         </div>
         <div id="ai-brief-loading" class="hidden py-8 flex flex-col items-center justify-center space-y-2">
           <i class="fa-solid fa-circle-notch anim-sync text-purple-600 text-2xl"></i>
-          <span class="text-xs font-semibold text-slate-600">Analyzing operational volume, occurrences, and warning distributions...</span>
+          <span class="text-xs font-semibold text-slate-600">Analyzing operational volume...</span>
         </div>
         <div id="ai-brief-content" class="text-xs font-mono leading-relaxed text-slate-700 whitespace-pre-wrap bg-slate-50 p-4 rounded-lg border border-slate-200 max-h-96 overflow-y-auto custom-scrollbar"></div>
       </div>
@@ -559,7 +558,7 @@
         <div class="p-3.5 bg-purple-50/70 border border-purple-200 rounded-lg text-xs text-purple-900 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div class="space-y-1">
             <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-building"></i> Built for teams with Google Workspace / Gemini</p>
-            <p class="text-[11px] text-purple-700 leading-relaxed">No developer keys or Google AI Studio accounts needed. You can generate complete HR documentation right in the app, or click <strong>"Open in Gemini"</strong> to copy the structured prompt directly into your corporate Gemini web chat.</p>
+            <p class="text-[11px] text-purple-700 leading-relaxed">No developer keys needed. Generate HR documentation directly or click <strong>"Open in Gemini"</strong> to paste into your corporate Gemini web session.</p>
           </div>
           <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="bg-purple-700 hover:bg-purple-800 text-white font-medium px-3.5 py-2 rounded-lg text-xs whitespace-nowrap transition flex items-center gap-1.5 shadow-sm">
             Launch Gemini <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
@@ -608,7 +607,7 @@
             </div>
             <div class="p-2 border border-slate-100 rounded-lg">
               <span class="font-bold text-rose-600 block">4 &ndash; 5 Points:</span>
-              <span class="text-slate-600">Repeated pattern of negligence, disregard for expectations, or failure to act responsibly.</span>
+              <span class="text-slate-600">Repeated pattern of negligence or failure to act responsibly.</span>
             </div>
           </div>
         </div>
@@ -680,19 +679,18 @@
         </button>
       </div>
 
-      <p class="text-xs text-slate-600 leading-relaxed">Connect your tracker to a Google Apps Script Web App URL. When configured, all weekly evaluations, occurrence logs, and action items will sync directly with your team's live Google Sheet database.</p>
+      <p class="text-xs text-slate-600 leading-relaxed">Connect your tracker to a Google Apps Script Web App URL. All evaluations and action items will sync directly with your live Google Sheet database.</p>
 
       <div class="space-y-3">
         <div>
           <label class="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1">Google Apps Script Web App URL</label>
           <input type="text" id="modal-google-sheet-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs font-mono text-slate-800 focus:ring-2 focus:ring-emerald-500">
-          <p class="text-[11px] text-slate-400 mt-1">Pre-populated with your team's Axon deployment URL.</p>
         </div>
 
         <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
           <div>
             <span class="text-xs font-bold text-slate-800 block">Auto-Sync Cadence</span>
-            <span class="text-[11px] text-slate-500">Background refresh rate for new Google Form evaluations</span>
+            <span class="text-[11px] text-slate-500">Background refresh rate for Google Form submissions</span>
           </div>
           <select id="modal-sync-interval" class="bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-1.5 font-medium text-slate-800">
             <option value="1">1 Minute</option>
@@ -757,15 +755,15 @@
         <div class="relative">
           <div id="ai-memo-loading" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center space-y-2 z-10 rounded-xl">
             <i class="fa-solid fa-circle-notch anim-sync text-purple-600 text-2xl"></i>
-            <span class="text-xs font-semibold text-slate-700">Synthesizing competencies, incidents, and drafting memo...</span>
+            <span class="text-xs font-semibold text-slate-700">Drafting memo...</span>
           </div>
-          <textarea id="ai-memo-output" rows="13" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-4 text-xs font-mono leading-relaxed text-slate-800 focus:ring-2 focus:ring-purple-500 custom-scrollbar" placeholder="Generating formal documentation tailored to this employee's active status..."></textarea>
+          <textarea id="ai-memo-output" rows="13" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-4 text-xs font-mono leading-relaxed text-slate-800 focus:ring-2 focus:ring-purple-500 custom-scrollbar" placeholder="Generating formal documentation..."></textarea>
         </div>
 
         <div class="bg-purple-50/70 border border-purple-200 rounded-lg p-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px]">
           <div class="text-purple-900 flex items-center gap-2">
             <i class="fa-solid fa-lightbulb text-purple-600 text-sm"></i>
-            <span><strong>Want to refine this in your corporate Gemini account?</strong> Click below to copy the prompt and launch Gemini.</span>
+            <span><strong>Want to refine this in Gemini?</strong> Click below to copy the prompt and open Gemini.</span>
           </div>
           <button onclick="openMemoInGemini()" class="bg-purple-700 hover:bg-purple-800 text-white font-semibold px-3 py-1.5 rounded-lg text-xs whitespace-nowrap transition flex items-center gap-1.5 shadow-sm">
             <i class="fa-solid fa-arrow-up-right-from-square"></i> Open in Gemini
@@ -806,7 +804,7 @@
       </div>
 
       <div class="p-6 space-y-4 overflow-y-auto custom-scrollbar flex-1">
-        <p class="text-xs text-slate-600 leading-relaxed">The engine analyzes this individual's lowest-scoring competencies, recent counseling incidents, and current disciplinary standing to formulate concrete, time-bound deliverables.</p>
+        <p class="text-xs text-slate-600 leading-relaxed">Formulates concrete, time-bound deliverables for deficit competencies.</p>
 
         <div id="ai-remed-loading" class="hidden py-8 flex flex-col items-center justify-center space-y-2">
           <i class="fa-solid fa-circle-notch anim-sync text-emerald-600 text-2xl"></i>
@@ -897,7 +895,7 @@
         </div>
 
         <div class="pt-2 border-t border-slate-100">
-          <h4 class="font-bold text-slate-800 uppercase tracking-wider mb-2">Production &amp; Effort Metrics</h4>
+          <h4 class="font-bold text-slate-800 uppercase tracking-wider mb-2">Production Metrics</h4>
           <div class="grid grid-cols-3 gap-3">
             <div>
               <label class="font-medium text-slate-600 block mb-1">Tasks Completed</label>
@@ -924,7 +922,7 @@
     </div>
   </div>
 
-  <!-- Modal: Record Counseling Incident (Infraction) -->
+  <!-- Modal: Record Counseling Incident -->
   <div id="modal-occurrence" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
     <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto custom-scrollbar space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -965,8 +963,8 @@
               <option value="1">1 Point (First missed deadline / minor lapse)</option>
               <option value="2">2 Points (Missed after follow-up reminder)</option>
               <option value="3">3 Points (Multiple overdue tasks active)</option>
-              <option value="4">4 Points (Pattern of negligence / insubordination)</option>
-              <option value="5">5 Points (Severe policy or compliance breach)</option>
+              <option value="4">4 Points (Pattern of negligence)</option>
+              <option value="5">5 Points (Severe policy breach)</option>
             </select>
           </div>
         </div>
@@ -978,7 +976,7 @@
               <i class="fa-solid fa-wand-magic-sparkles"></i> AI Polish &amp; Classify
             </button>
           </div>
-          <textarea id="occ-reason" rows="3" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs font-medium focus:ring-2 focus:ring-rose-500" placeholder="Describe the missed deadline, conduct issue, or non-compliance occurrence..." required></textarea>
+          <textarea id="occ-reason" rows="3" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs font-medium focus:ring-2 focus:ring-rose-500" placeholder="Describe the occurrence..." required></textarea>
           <div id="occ-ai-hint-box" class="hidden mt-1.5 p-2 bg-purple-50 border border-purple-200 rounded text-[11px] text-purple-900 font-medium">
             <span id="occ-ai-hint-text"></span>
           </div>
@@ -986,14 +984,13 @@
 
         <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
           <label class="font-bold text-slate-700 uppercase tracking-wider block">Impacted Competencies</label>
-          <p class="text-[11px] text-slate-500">Checking a competency subtracts points directly from that rating unless marked as Immediate Escalation.</p>
           <div class="grid grid-cols-2 gap-2 pt-1" id="occ-impact-container"></div>
         </div>
 
         <div class="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-200">
           <div>
             <label for="occ-escalation" class="font-bold text-amber-900 block cursor-pointer">Immediate Escalation</label>
-            <span class="text-[11px] text-amber-700">Flag as an immediate warning. Escalated points accrue to total discipline but do not deduct from net competency ratings.</span>
+            <span class="text-[11px] text-amber-700">Flag as an immediate warning.</span>
           </div>
           <input type="checkbox" id="occ-escalation" class="w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500">
         </div>
@@ -1040,7 +1037,7 @@
 
         <div>
           <label class="font-bold text-slate-700 uppercase tracking-wider block mb-1">Task Deliverable &amp; Description</label>
-          <input type="text" id="action-task" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-medium" placeholder="e.g. Complete Quality Calibration Checklist on Module 4" required>
+          <input type="text" id="action-task" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-medium" placeholder="Task description..." required>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -1066,10 +1063,6 @@
           </div>
         </div>
 
-        <p class="text-[11px] text-slate-500 pt-1">
-          <strong>Rule:</strong> Any action item where Status is not "Complete" past its Due Date triggers +1 Automated Disciplinary Point dynamically.
-        </p>
-
         <div class="flex justify-end space-x-2 pt-4 border-t border-slate-100">
           <button type="button" onclick="closeActionModal()" class="px-4 py-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700">Cancel</button>
           <button type="submit" class="px-4 py-2 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-sm flex items-center gap-1.5">
@@ -1083,7 +1076,7 @@
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
 
   <!-- ========================================== -->
-  <!-- 4. CORE JAVASCRIPT & APPLICATION STATE     -->
+  <!-- 4. CORE APPLICATION JAVASCRIPT ENGINE     -->
   <!-- ========================================== -->
   <script>
     const OPERATOR_COMPETENCIES = [
@@ -1140,22 +1133,22 @@
         { id: "lead-log-4", date: "2026-08-14", lead_name: "Elena Rostova", strategic_vision: 4.7, team_development: 4.8, execution: 4.8, stakeholder_management: 4.6, innovation: 4.5, integrity: 5.0, tasks_completed: 50, occurrences: 0, hours_logged: 45 }
       ],
       manual_occurrences: [
-        { id: "occ-1", entity_name: "John Doe", date: "2026-08-12", reason: "Missed sprint ticket deliverables and failed to attend calibration standup without notice.", points: 2, impacts_c1: true, impacts_c2: true, impacts_c3: false, impacts_c4: true, impacts_c5: false, impacts_c6: false, immediate_escalation: false },
-        { id: "occ-2", entity_name: "Sam Wilson", date: "2026-08-18", reason: "Repeated non-compliance with work order intake protocol following initial oral warning.", points: 4, impacts_c1: true, impacts_c2: true, impacts_c3: false, impacts_c4: false, impacts_c5: true, impacts_c6: false, immediate_escalation: false },
-        { id: "occ-3", entity_name: "Sam Wilson", date: "2026-08-20", reason: "Gross safety violation on testing floor. Immediate escalation flag triggered.", points: 25, impacts_c1: true, impacts_c2: false, impacts_c3: false, impacts_c4: false, impacts_c5: false, impacts_c6: false, immediate_escalation: true }
+        { id: "occ-1", entity_name: "John Doe", date: "2026-08-12", reason: "Missed sprint deliverables.", points: 2, impacts_c1: true, impacts_c2: true, impacts_c3: false, impacts_c4: true, impacts_c5: false, impacts_c6: false, immediate_escalation: false },
+        { id: "occ-2", entity_name: "Sam Wilson", date: "2026-08-18", reason: "Non-compliance after warning.", points: 4, impacts_c1: true, impacts_c2: true, impacts_c3: false, impacts_c4: false, impacts_c5: true, impacts_c6: false, immediate_escalation: false },
+        { id: "occ-3", entity_name: "Sam Wilson", date: "2026-08-20", reason: "Gross safety violation.", points: 25, impacts_c1: true, impacts_c2: false, impacts_c3: false, impacts_c4: false, impacts_c5: false, impacts_c6: false, immediate_escalation: true }
       ],
       lead_manual_occurrences: [
-        { id: "lead-occ-1", entity_name: "Marcus Vance", date: "2026-08-15", reason: "Missed departmental headcount forecast deadline after reminder.", points: 2, impacts_c1: false, impacts_c2: false, impacts_c3: true, impacts_c4: true, impacts_c5: false, impacts_c6: false, immediate_escalation: false }
+        { id: "lead-occ-1", entity_name: "Marcus Vance", date: "2026-08-15", reason: "Missed departmental forecast deadline.", points: 2, impacts_c1: false, impacts_c2: false, impacts_c3: true, impacts_c4: true, impacts_c5: false, impacts_c6: false, immediate_escalation: false }
       ],
       action_items: [
-        { id: "act-1", entity_name: "John Doe", task_name: "Complete Quality of Work SOP Review & Audit", status: "Open", due_date: "2026-08-10", priority: "High" },
-        { id: "act-2", entity_name: "John Doe", task_name: "Attend weekly 1-on-1 velocity coaching with Jane Smith", status: "In Progress", due_date: "2026-09-01", priority: "Medium" },
-        { id: "act-3", entity_name: "Sam Wilson", task_name: "Safety protocol re-certification module", status: "Open", due_date: "2026-08-15", priority: "High" },
-        { id: "act-4", entity_name: "Sam Wilson", task_name: "Submit daily ticket status checklist to supervisor", status: "Open", due_date: "2026-08-19", priority: "High" },
-        { id: "act-5", entity_name: "Alex Rivera", task_name: "Draft mentorship onboarding guide for junior operators", status: "Complete", due_date: "2026-08-10", priority: "Medium" }
+        { id: "act-1", entity_name: "John Doe", task_name: "Complete Quality SOP Audit", status: "Open", due_date: "2026-08-10", priority: "High" },
+        { id: "act-2", entity_name: "John Doe", task_name: "Attend weekly 1-on-1 coaching", status: "In Progress", due_date: "2026-09-01", priority: "Medium" },
+        { id: "act-3", entity_name: "Sam Wilson", task_name: "Safety protocol re-certification", status: "Open", due_date: "2026-08-15", priority: "High" },
+        { id: "act-4", entity_name: "Sam Wilson", task_name: "Submit daily status checklist", status: "Open", due_date: "2026-08-19", priority: "High" },
+        { id: "act-5", entity_name: "Alex Rivera", task_name: "Draft mentorship onboarding guide", status: "Complete", due_date: "2026-08-10", priority: "Medium" }
       ],
       lead_action_items: [
-        { id: "lead-act-1", entity_name: "Marcus Vance", task_name: "Deliver updated resource allocation grid to operations lead", status: "Open", due_date: "2026-08-12", priority: "High" }
+        { id: "lead-act-1", entity_name: "Marcus Vance", task_name: "Deliver resource allocation grid", status: "Open", due_date: "2026-08-12", priority: "High" }
       ]
     };
 
@@ -1260,7 +1253,6 @@
       }
     });
 
-    // CORS-Safe Google Apps Script GET
     async function syncWithGoogleSheet(silent) {
       if (silent === undefined) silent = false;
       const url = appState && appState.settings ? appState.settings.google_sheet_url : "";
@@ -1298,7 +1290,6 @@
       }
     }
 
-    // CORS-Safe Google Apps Script POST (no-cors + text/plain)
     async function pushStateToGoogleSheet(silent) {
       if (silent === undefined) silent = false;
       const url = appState && appState.settings ? appState.settings.google_sheet_url : "";
@@ -1317,7 +1308,7 @@
         updateCloudStatusUI("online", "Google Sheet Live");
         if (!silent) showAppToast("Changes saved & synced to Google Sheet!", "success");
       } catch (err) {
-        console.warn("Push to Google Sheet encountered an issue:", err);
+        console.warn("Push to Google Sheet error:", err);
         updateCloudStatusUI("error", "Sheet Sync Pending");
       } finally {
         if (spinner) spinner.classList.add("hidden");
@@ -1429,163 +1420,6 @@
       };
     }
 
-    function generateLocalFallbackMemo(name, type, state, docType, tone) {
-      const todayStr = new Date().toISOString().split('T')[0];
-      const compEntries = Object.entries(state.netScores).map(([k, v]) => ({
-        label: k.replace(/_/g, ' ').toUpperCase(),
-        net: v,
-        base: state.baseScores[k],
-        deduction: state.deductions[k]
-      }));
-      compEntries.sort((a, b) => a.net - b.net);
-      const lowestComps = compEntries.slice(0, 3);
-
-      const titleMap = {
-        formal_warning: "OFFICIAL DISCIPLINARY NOTICE: " + state.status.toUpperCase(),
-        pip_plan: "30-DAY PERFORMANCE IMPROVEMENT PLAN (PIP)",
-        coaching_1on1: "SUPERVISORY COACHING & 1-ON-1 COUNSELING RECORD"
-      };
-
-      const toneIntroMap = {
-        firm_compliance: "This documentation serves as an official operational record regarding organizational compliance, deliverable accountability, and adherence to company performance standards.",
-        supportive_coaching: "This document is designed as a constructive developmental roadmap to support your operational success, eliminate performance bottlenecks, and assist you in returning your standing to full compliance.",
-        direct_urgent: "This notice addresses critical, sustained operational deficits that require immediate, measurable corrective intervention to prevent further progressive discipline."
-      };
-
-      const roleLabel = (type === 'operator') ? 'Operator / Individual Contributor' : 'Team Lead / Supervisory';
-
-      return [
-        "================================================================================",
-        titleMap[docType] || titleMap.formal_warning,
-        "================================================================================",
-        "DATE: " + todayStr,
-        "SUBJECT / EMPLOYEE: " + name + " (" + roleLabel + ")",
-        "CURRENT DISCIPLINARY STATUS: " + state.status.toUpperCase(),
-        "TOTAL ACCUMULATED POINTS: " + state.totalPoints + " pts",
-        "  - Automated Overdue Penalties: " + state.automatedPoints + " pts (+1 pt per past-due deliverable)",
-        "  - Logged Counseling Incidents: " + state.manualPoints + " pts",
-        "================================================================================",
-        "",
-        "1. PURPOSE & OPERATIONAL CONTEXT:",
-        toneIntroMap[tone] || toneIntroMap.firm_compliance,
-        "Under organizational guidelines, disciplinary points accrue from overdue action items and logged manual counseling occurrences. Your current balance places you in the \"" + state.status + "\" tier.",
-        "",
-        "2. CORE COMPETENCY DEFICITS & RATING ANALYSIS:",
-        "Your current rolling evaluations highlight key operational gaps in the following core competencies:",
-        lowestComps.map(c => "  * " + c.label + ": Net Rating " + c.net.toFixed(2) + " / 5.00 (Base Evaluation: " + c.base.toFixed(2) + ", Deduction: -" + c.deduction + " pts)").join("\n"),
-        "",
-        "3. RECENT COUNSELING INCIDENTS & INFRACTIONS:",
-        state.occs.length === 0 ? "  * No manual occurrences logged in the current window." : state.occs.slice(-4).map(o => "  * [" + o.date + "] " + o.reason + " (+" + o.points + " pts, Immediate Escalation: " + (o.immediate_escalation ? "Yes" : "No") + ")").join("\n"),
-        "",
-        "4. ACTIVE CORRECTIVE DELIVERABLES & STATUS:",
-        state.actions.length === 0 ? "  * No existing action items currently assigned." : state.actions.map(a => "  * " + a.task_name + " | Priority: " + a.priority + " | Due: " + a.due_date + " | Status: " + a.status).join("\n"),
-        "",
-        "5. MANDATORY CORRECTIVE OBJECTIVES:",
-        "  1. Complete all assigned action items on or before their due dates to prevent +1 pt automated penalties.",
-        "  2. Achieve an evaluated score of at least 3.50 across all flagged competencies during the next 4 evaluation cycles.",
-        "  3. Maintain zero unexcused missed deadlines and adhere strictly to standard supervisory workflows.",
-        "",
-        "6. ACKNOWLEDGMENT & PROGRESSIVE DISCIPLINARY POLICY:",
-        "Failure to show immediate and sustained improvement or accrual of additional disciplinary points will result in escalation to the next tier of progressive discipline, up to and including Final Warning or review for separation of employment.",
-        "",
-        "Employee Signature: ___________________________    Date: ______________",
-        "Supervisor Signature: _________________________    Date: ______________"
-      ].join("\n");
-    }
-
-    function generateLocalFallbackRemediation(name, type, state) {
-      const compEntries = Object.entries(state.netScores).map(([k, v]) => ({ key: k, net: v }));
-      compEntries.sort((a, b) => a.net - b.net);
-      const lowest = compEntries.slice(0, 3);
-
-      const targetComp1 = lowest[0] ? lowest[0].key.replace(/_/g, ' ') : "Quality of Work";
-      const targetComp2 = lowest[1] ? lowest[1].key.replace(/_/g, ' ') : "Efficiency";
-      const targetComp3 = lowest[2] ? lowest[2].key.replace(/_/g, ' ') : "Communication";
-
-      return [
-        {
-          task_name: "Complete Standardized Workflow & Quality Checklist Audit",
-          targeted_competency: targetComp1,
-          rationale: "Directly targets deficit in " + targetComp1 + ". Requires daily supervisory spot-checks.",
-          priority: "High",
-          due_in_days: 7
-        },
-        {
-          task_name: "Attend 1-on-1 SOP Calibration & Task Prioritization Session",
-          targeted_competency: targetComp2,
-          rationale: "Direct review with supervisor to address bottlenecks and establish milestone check-ins.",
-          priority: "Medium",
-          due_in_days: 10
-        },
-        {
-          task_name: "Submit Weekly Self-Assessment & Deliverables Log",
-          targeted_competency: targetComp3,
-          rationale: "Reinforces proactive updates and ensures transparency before deadlines lapse.",
-          priority: "Medium",
-          due_in_days: 14
-        }
-      ];
-    }
-
-    function generateLocalFallbackIncidentPolish(rawText, targetType, comps) {
-      const lower = rawText.toLowerCase();
-      let pts = 1;
-      const impacts = [];
-
-      if (lower.includes("repeated") || lower.includes("insubordinat") || lower.includes("gross") || lower.includes("failed completely")) {
-        pts = 4;
-      } else if (lower.includes("multiple") || lower.includes("overdue") || lower.includes("second time") || lower.includes("again")) {
-        pts = 3;
-      } else if (lower.includes("reminder") || lower.includes("follow-up") || lower.includes("warned")) {
-        pts = 2;
-      }
-
-      if (lower.includes("qualit") || lower.includes("error") || lower.includes("mistake") || lower.includes("defect")) impacts.push(1);
-      if (lower.includes("efficien") || lower.includes("slow") || lower.includes("output") || lower.includes("deliver")) impacts.push(2);
-      if (lower.includes("team") || lower.includes("collaborat") || lower.includes("assist")) impacts.push(3);
-      if (lower.includes("comm") || lower.includes("updat") || lower.includes("unnotif") || lower.includes("report")) impacts.push(4);
-      if (lower.includes("problem") || lower.includes("resolv") || lower.includes("troubleshoot")) impacts.push(5);
-      if (lower.includes("strateg") || lower.includes("plan") || lower.includes("vision")) impacts.push(6);
-
-      if (impacts.length === 0) impacts.push(1, 2);
-
-      const cleaned = rawText.charAt(0).toUpperCase() + rawText.slice(1).trim();
-      const polished = "Documented operational infraction: " + cleaned + ". The subject failed to meet established operational standards resulting in an unexcused delay and impact to expected team deliverables.";
-
-      return {
-        polished_reason: polished,
-        recommended_points: pts,
-        impacted_competency_indices: impacts,
-        explanation: "Classified as " + pts + " Pt(s) based on incident severity rubric and keyword impact analysis."
-      };
-    }
-
-    function generateLocalFallbackExecutiveReport() {
-      const activeOps = (appState.employees || []).filter(e => e.active !== false);
-      const activeLeads = (appState.leads || []).filter(l => l.active !== false);
-      const opStates = activeOps.map(op => computeEntityState(op.name, 'operator'));
-      const atRiskOps = opStates.filter(s => s.totalPoints >= 20);
-      const totalTasks = (appState.weekly_logs || []).reduce((acc, c) => acc + (parseInt(c.tasks_completed) || 0), 0);
-      const totalOccs = (appState.manual_occurrences || []).length + (appState.lead_manual_occurrences || []).length;
-      const totalOverdue = opStates.reduce((acc, s) => acc + s.automatedPoints, 0);
-      const riskPct = Math.round((atRiskOps.length / (activeOps.length || 1)) * 100);
-
-      return [
-        "EXECUTIVE OPERATIONAL DIAGNOSIS & DISCIPLINARY HEALTH ASSESSMENT",
-        "",
-        "1. OPERATIONAL RISK ASSESSMENT",
-        "The organization currently tracks " + activeOps.length + " active operators and " + activeLeads.length + " team leads. Total production volume stands at " + totalTasks.toLocaleString() + " completed tasks with " + totalOccs + " total counseling incidents logged. Currently, " + atRiskOps.length + " out of " + activeOps.length + " operators (" + riskPct + "%) are operating within progressive warning tiers (Oral Warning or higher).",
-        "",
-        "2. SUPERVISORY HOTSPOTS & BOTTLENECKS",
-        "A primary driver of disciplinary risk is automated overdue task accumulation (" + totalOverdue + " active past-due deliverables). Personnel who accumulate multiple overdue items face compound risk under the Disciplinary Matrix rubric (+1 pt per overdue item). Immediate supervisory focus must be placed on clearing aging deliverables to halt point accruals.",
-        "",
-        "3. STRATEGIC LEADERSHIP RECOMMENDATIONS",
-        "- Initiate mandatory weekly calibration check-ins between Team Leads and all personnel in Warning tiers.",
-        "- Audit overdue action plans and re-baseline deliverable dates where systemic roadblocks exist.",
-        "- Standardize evaluation cadence to ensure rolling 6-competency net baselines remain representative of recent performance improvements."
-      ].join("\n");
-    }
-
     function showAppToast(message, type) {
       if (type === undefined) type = 'info';
       const container = document.getElementById("toast-container");
@@ -1623,10 +1457,70 @@
       }, 4000);
     }
 
+    // Modal Control Functions
+    function openEvaluationModal() {
+      document.getElementById("eval-date").value = new Date().toISOString().split('T')[0];
+      updateEvaluationTierUI();
+      document.getElementById("modal-evaluation").classList.remove("hidden");
+    }
+
+    function closeEvaluationModal() {
+      document.getElementById("modal-evaluation").classList.add("hidden");
+    }
+
+    function openOccurrenceModal(preSelectName, tier) {
+      if (tier === undefined) tier = 'operator';
+      document.getElementById("occ-date").value = new Date().toISOString().split('T')[0];
+      document.getElementById("occ-tier-select").value = tier;
+      document.getElementById("occ-reason").value = "";
+      document.getElementById("occ-points").value = "1";
+      document.getElementById("occ-escalation").checked = false;
+      document.getElementById("occ-ai-hint-box").classList.add("hidden");
+
+      updateOccurrenceTierUI();
+      if (preSelectName) {
+        document.getElementById("occ-name-select").value = preSelectName;
+      }
+      document.getElementById("modal-occurrence").classList.remove("hidden");
+    }
+
+    function closeOccurrenceModal() {
+      document.getElementById("modal-occurrence").classList.add("hidden");
+    }
+
+    function openActionModal(preSelectName, tier) {
+      if (tier === undefined) tier = 'operator';
+      const nextWeek = new Date();
+      nextWeek.setDate(nextWeek.getDate() + 7);
+      document.getElementById("action-due").value = nextWeek.toISOString().split('T')[0];
+      document.getElementById("action-tier-select").value = tier;
+      document.getElementById("action-task").value = "";
+      document.getElementById("action-priority").value = "Medium";
+      document.getElementById("action-status").value = "Open";
+
+      updateActionTierUI();
+      if (preSelectName) {
+        document.getElementById("action-name-select").value = preSelectName;
+      }
+      document.getElementById("modal-action").classList.remove("hidden");
+    }
+
+    function closeActionModal() {
+      document.getElementById("modal-action").classList.add("hidden");
+    }
+
+    function openCloudConfigModal() {
+      document.getElementById("modal-cloud-config").classList.remove("hidden");
+      updateCloudInputs();
+    }
+
+    function closeCloudConfigModal() {
+      document.getElementById("modal-cloud-config").classList.add("hidden");
+    }
+
     function openAIMemoModal(name, type) {
       if (!name) return;
       currentAIRemedTarget = { name: name, type: type };
-
       const roleBadge = (type === 'operator') ? 'Operator' : 'Team Lead';
       document.getElementById("ai-memo-target-subtitle").innerText = name + " (" + roleBadge + ")";
       document.getElementById("ai-memo-modal").classList.remove("hidden");
@@ -1637,77 +1531,9 @@
       document.getElementById("ai-memo-modal").classList.add("hidden");
     }
 
-    function generateAIMemo() {
-      const name = currentAIRemedTarget.name;
-      const type = currentAIRemedTarget.type;
-      if (!name) return;
-
-      const state = computeEntityState(name, type);
-      const docType = document.getElementById("ai-memo-doc-type").value;
-      const tone = document.getElementById("ai-memo-tone").value;
-      const outputTextarea = document.getElementById("ai-memo-output");
-      const loading = document.getElementById("ai-memo-loading");
-      const runBtn = document.getElementById("btn-run-ai-memo");
-
-      loading.classList.remove("hidden");
-      runBtn.disabled = true;
-
-      const compEntries = Object.entries(state.netScores).map(([k, v]) => ({ key: k, net: v, base: state.baseScores[k], deduction: state.deductions[k] }));
-      compEntries.sort((a, b) => a.net - b.net);
-      const lowestComps = compEntries.slice(0, 3);
-      const roleText = (type === 'operator') ? 'Operator / Individual Contributor' : 'Team Lead / Supervisory';
-
-      lastGeneratedPrompt = [
-        "You are an expert HR Operations Director and Employee Relations Counsel.",
-        "Draft a formal HR counseling document for:",
-        "- Role Tier: " + roleText,
-        "- Personnel Name: " + name,
-        "- Current Disciplinary Status: " + state.status + " (" + state.totalPoints + " total accumulated points)",
-        "- Automated Overdue Task Points: " + state.automatedPoints,
-        "- Manual Counseling Incident Points: " + state.manualPoints,
-        "- Lowest Net Competency Ratings (Scale 1.0 - 5.0):",
-        lowestComps.map(c => "  * " + c.key.replace(/_/g, ' ') + ": Net " + c.net.toFixed(2) + " (Baseline: " + c.base.toFixed(2) + ", Deduction: -" + c.deduction + " pts)").join("\n"),
-        "- Recent Infractions / Incidents (" + state.occs.length + " total):",
-        state.occs.slice(-3).map(o => "  * [" + o.date + "] " + o.reason + " (+" + o.points + " pts, Escalated: " + (o.immediate_escalation ? "Yes" : "No") + ")").join("\n") || "  None recorded",
-        "- Active Corrective Action Items:",
-        state.actions.map(a => "  * " + a.task_name + " (Status: " + a.status + ", Due: " + a.due_date + ", Priority: " + a.priority + ")").join("\n") || "  None",
-        "",
-        "Document Format: " + docType,
-        "Tone Requirement: " + tone,
-        "Company Disciplinary Matrix Policy: 0-19 pts Good Standing, 20-39 pts Oral Warning, 40-49 pts Written Warning, 50+ pts Final Warning.",
-        "",
-        "Instructions:",
-        "1. Provide a clean, structured, and ready-to-issue document.",
-        "2. Maintain objectivity and strict legal/HR defensibility."
-      ].join("\n");
-
-      setTimeout(() => {
-        outputTextarea.value = generateLocalFallbackMemo(name, type, state, docType, tone);
-        loading.classList.add("hidden");
-        runBtn.disabled = false;
-      }, 250);
-    }
-
-    function copyMemoToClipboard() {
-      const output = document.getElementById("ai-memo-output").value;
-      if (!output) return;
-      navigator.clipboard.writeText(output).then(() => {
-        showAppToast("Memo copied to clipboard!", "success");
-      });
-    }
-
-    function openMemoInGemini() {
-      const promptToUse = lastGeneratedPrompt || document.getElementById("ai-memo-output").value;
-      navigator.clipboard.writeText(promptToUse).then(() => {
-        showAppToast("Full prompt copied to clipboard! Opening Gemini...", "info");
-        window.open("https://gemini.google.com/app", "_blank");
-      });
-    }
-
     function openAIRemediationModal(name, type) {
       if (!name) return;
       currentAIRemedTarget = { name: name, type: type };
-
       const roleBadge = (type === 'operator') ? 'Operator' : 'Team Lead';
       document.getElementById("ai-remed-subtitle").innerText = name + " (" + roleBadge + ")";
       document.getElementById("ai-remed-modal").classList.remove("hidden");
@@ -1716,202 +1542,6 @@
 
     function closeAIRemediationModal() {
       document.getElementById("ai-remed-modal").classList.add("hidden");
-    }
-
-    function generateAIRemediation() {
-      const name = currentAIRemedTarget.name;
-      const type = currentAIRemedTarget.type;
-      if (!name) return;
-
-      const state = computeEntityState(name, type);
-      const loading = document.getElementById("ai-remed-loading");
-      const results = document.getElementById("ai-remed-results");
-      const runBtn = document.getElementById("btn-run-ai-remed");
-
-      loading.classList.remove("hidden");
-      results.innerHTML = "";
-      runBtn.disabled = true;
-
-      function renderRemediationCards(items) {
-        results.innerHTML = "";
-        items.forEach((item) => {
-          const card = document.createElement("div");
-          card.className = "p-4 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 rounded-xl space-y-2 transition";
-          const priorityBadgeClass = (item.priority === 'High') ? 'bg-rose-100 text-rose-700' : 'bg-slate-200 text-slate-700';
-          const dueDays = item.due_in_days || 7;
-
-          card.innerHTML = [
-            '<div class="flex items-start justify-between gap-2">',
-            '  <div>',
-            '    <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold ' + priorityBadgeClass + '">' + item.priority + ' Priority</span>',
-            '    <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 ml-1">' + item.targeted_competency + '</span>',
-            '    <h4 class="text-xs font-bold text-slate-900 mt-1">' + item.task_name + '</h4>',
-            '  </div>',
-            '  <button onclick="acceptAIActionItem(\'' + encodeURIComponent(item.task_name) + '\', \'' + item.priority + '\', ' + dueDays + ', this)" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-1.5 px-3 rounded-lg shadow-sm whitespace-nowrap transition flex items-center gap-1">',
-            '    <i class="fa-solid fa-plus text-[10px]"></i> Add to Roster',
-            '  </button>',
-            '</div>',
-            '<p class="text-[11px] text-slate-600 leading-normal">' + item.rationale + '</p>',
-            '<div class="text-[10px] text-slate-400 font-mono">Suggested Due: +' + dueDays + ' days</div>'
-          ].join('');
-
-          results.appendChild(card);
-        });
-      }
-
-      setTimeout(() => {
-        const fallbackItems = generateLocalFallbackRemediation(name, type, state);
-        renderRemediationCards(fallbackItems);
-        loading.classList.add("hidden");
-        runBtn.disabled = false;
-      }, 250);
-    }
-
-    function acceptAIActionItem(encodedTask, priority, days, btnElement) {
-      const taskName = decodeURIComponent(encodedTask);
-      const name = currentAIRemedTarget.name;
-      const type = currentAIRemedTarget.type;
-      if (!name) return;
-
-      const targetList = (type === 'operator') ? appState.action_items : appState.lead_action_items;
-      const targetDate = new Date();
-      targetDate.setDate(targetDate.getDate() + (parseInt(days) || 7));
-      const dueStr = targetDate.toISOString().split('T')[0];
-
-      const newItem = {
-        id: "act-" + Date.now(),
-        entity_name: name,
-        task_name: taskName,
-        status: "Open",
-        due_date: dueStr,
-        priority: priority || "Medium"
-      };
-
-      targetList.push(newItem);
-      commitStateChanges();
-
-      if (btnElement) {
-        btnElement.disabled = true;
-        btnElement.className = "text-xs bg-slate-300 text-slate-600 font-semibold py-1.5 px-3 rounded-lg cursor-not-allowed";
-        btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Added';
-      }
-
-      showAppToast('"' + taskName + '" assigned to ' + name + '!', "success");
-
-      if (type === 'operator') {
-        renderOperatorInspector(name);
-      } else {
-        renderLeadInspector(name);
-      }
-    }
-
-    function polishIncidentNotes() {
-      const targetType = document.getElementById("occ-tier-select").value;
-      const rawText = document.getElementById("occ-reason").value.trim();
-      const btn = document.getElementById("btn-polish-incident");
-      const hintBox = document.getElementById("occ-ai-hint-box");
-      const hintText = document.getElementById("occ-ai-hint-text");
-
-      if (!rawText) {
-        showAppToast("Please enter preliminary notes or observations first.", "warning");
-        return;
-      }
-
-      const originalBtnHTML = btn.innerHTML;
-      btn.innerHTML = '<i class="fa-solid fa-circle-notch anim-sync text-purple-600"></i> Polishing...';
-      btn.disabled = true;
-
-      const comps = (targetType === 'operator') ? OPERATOR_COMPETENCIES : LEAD_COMPETENCIES;
-
-      setTimeout(() => {
-        const fallback = generateLocalFallbackIncidentPolish(rawText, targetType, comps);
-
-        if (fallback.polished_reason) {
-          document.getElementById("occ-reason").value = fallback.polished_reason;
-          if (fallback.recommended_points && [1, 2, 3, 4, 5].includes(fallback.recommended_points)) {
-            document.getElementById("occ-points").value = String(fallback.recommended_points);
-          }
-
-          for (let i = 1; i <= 6; i++) {
-            const cb = document.getElementById("occ_impact_" + i);
-            if (cb) cb.checked = false;
-          }
-
-          (fallback.impacted_competency_indices || []).forEach(idx => {
-            const cb = document.getElementById("occ_impact_" + idx);
-            if (cb) cb.checked = true;
-          });
-
-          hintText.innerText = "Recommendation: Set to " + fallback.recommended_points + " Pts. " + fallback.explanation;
-          hintBox.classList.remove("hidden");
-          showAppToast("Incident notes polished and classified!", "success");
-        }
-
-        btn.innerHTML = originalBtnHTML;
-        btn.disabled = false;
-      }, 250);
-    }
-
-    function generateExecutiveReport() {
-      const container = document.getElementById("ai-brief-container");
-      const loading = document.getElementById("ai-brief-loading");
-      const content = document.getElementById("ai-brief-content");
-      const btn = document.getElementById("btn-generate-ai-brief");
-
-      container.classList.remove("hidden");
-      loading.classList.remove("hidden");
-      content.innerText = "";
-      btn.disabled = true;
-
-      const activeOps = (appState.employees || []).filter(e => e.active !== false);
-      const activeLeads = (appState.leads || []).filter(l => l.active !== false);
-      const opStates = activeOps.map(op => computeEntityState(op.name, 'operator'));
-      const leadStates = activeLeads.map(ld => computeEntityState(ld.name, 'lead'));
-
-      const atRiskOps = opStates.filter(s => s.totalPoints >= 20);
-      const atRiskLeads = leadStates.filter(s => s.totalPoints >= 20);
-      const totalTasks = (appState.weekly_logs || []).reduce((acc, c) => acc + (parseInt(c.tasks_completed) || 0), 0);
-      const totalOccs = (appState.manual_occurrences || []).length + (appState.lead_manual_occurrences || []).length;
-      const totalOverdue = opStates.reduce((acc, s) => acc + s.automatedPoints, 0) + leadStates.reduce((acc, s) => acc + s.automatedPoints, 0);
-
-      lastGeneratedExecutivePrompt = [
-        "Generate an Executive Operational Diagnosis & Disciplinary Health Assessment.",
-        "Organization Telemetry:",
-        "- Total Active Operators: " + activeOps.length,
-        "- Total Active Team Leads: " + activeLeads.length,
-        "- Total Logged Production Tasks: " + totalTasks,
-        "- Total Counseling Incidents Logged: " + totalOccs,
-        "- Total Action Items Currently Past-Due: " + totalOverdue,
-        "- Operators in Warning Tiers:",
-        atRiskOps.map(o => "  * " + o.name + ": " + o.status + " (" + o.totalPoints + " pts, Overdue: " + o.automatedPoints + ")").join("\n") || "  None - All Good Standing",
-        "- Team Leads in Warning Tiers:",
-        atRiskLeads.map(l => "  * " + l.name + ": " + l.status + " (" + l.totalPoints + " pts)").join("\n") || "  None - All Good Standing",
-        "",
-        "Format into three distinct sections: Operational Risk Assessment, Supervisory Hotspots, and Strategic Recommendations."
-      ].join("\n");
-
-      setTimeout(() => {
-        content.innerText = generateLocalFallbackExecutiveReport();
-        loading.classList.add("hidden");
-        btn.disabled = false;
-        showAppToast("Executive brief generated from organizational metrics.", "info");
-      }, 250);
-    }
-
-    function copyExecutiveBrief() {
-      const text = document.getElementById("ai-brief-content").innerText;
-      if (!text) return;
-      navigator.clipboard.writeText(text).then(() => {
-        showAppToast("Executive assessment copied to clipboard!", "success");
-      });
-    }
-
-    function openExecutiveInGemini() {
-      const promptToUse = lastGeneratedExecutivePrompt || document.getElementById("ai-brief-content").innerText;
-      navigator.clipboard.writeText(promptToUse).then(() => {
-        showAppToast("Prompt copied to clipboard! Opening Gemini...", "info");
-        window.open("https://gemini.google.com/app", "_blank");
-      });
     }
 
     function renderAll() {
@@ -1942,8 +1572,6 @@
       const leadFilter = document.getElementById("filter-lead-select");
       const opSelect = document.getElementById("op-inspector-select");
       const leadSelect = document.getElementById("lead-inspector-select");
-      const optGroupOps = document.getElementById("optgroup-operators-trend");
-      const optGroupLeads = document.getElementById("optgroup-leads-trend");
 
       const activeOps = (appState.employees || []).filter(e => e.active !== false);
       const activeLeads = (appState.leads || []).filter(l => l.active !== false);
@@ -1984,26 +1612,6 @@
         leadSelect.value = curLd;
       } else if (activeLeads[0]) {
         leadSelect.value = activeLeads[0].name;
-      }
-
-      if (optGroupOps) {
-        optGroupOps.innerHTML = "";
-        activeOps.forEach(op => {
-          const opt = document.createElement("option");
-          opt.value = "OP:" + op.name;
-          opt.innerText = op.name;
-          optGroupOps.appendChild(opt);
-        });
-      }
-
-      if (optGroupLeads) {
-        optGroupLeads.innerHTML = "";
-        activeLeads.forEach(ld => {
-          const opt = document.createElement("option");
-          opt.value = "LEAD:" + ld.name;
-          opt.innerText = ld.name;
-          optGroupLeads.appendChild(opt);
-        });
       }
 
       if (opSelect.value) inspectOperator(opSelect.value);
@@ -2097,79 +1705,6 @@
       badge.className = "px-3 py-1 rounded-full text-xs font-bold " + (statusClasses[state.status] || 'bg-slate-100 text-slate-800');
       badge.innerText = state.status;
 
-      const actList = document.getElementById("op-action-items-list");
-      actList.innerHTML = "";
-      if (state.actions.length === 0) {
-        actList.innerHTML = '<div class="p-3 text-center text-slate-400 text-xs italic">No assigned action items</div>';
-      } else {
-        const todayStr = new Date().toISOString().split('T')[0];
-        state.actions.forEach(act => {
-          const isOverdue = (act.status !== 'Complete' && act.due_date && act.due_date < todayStr);
-          const priorityColorClass = (act.priority === 'High') ? 'text-rose-600' : 'text-slate-700';
-          const overdueBadge = isOverdue ? '<span class="px-1.5 py-0.5 rounded bg-rose-600 text-white text-[9px] font-bold uppercase tracking-wider">Overdue (+1 Pt)</span>' : '';
-          const cardClass = isOverdue ? 'bg-rose-50/70 border-rose-200' : 'bg-white border-slate-200';
-
-          const div = document.createElement("div");
-          div.className = "p-3 rounded-lg border flex items-center justify-between gap-3 text-xs " + cardClass;
-          div.innerHTML = [
-            '<div class="flex-1">',
-            '  <div class="flex items-center gap-2">',
-            '    <span class="font-bold text-slate-900">' + act.task_name + '</span>',
-            overdueBadge,
-            '  </div>',
-            '  <div class="text-[11px] text-slate-500 mt-0.5">',
-            '    Priority: <strong class="' + priorityColorClass + '">' + act.priority + '</strong> | Due: ' + (act.due_date || 'No Date'),
-            '  </div>',
-            '</div>',
-            '<div class="flex items-center space-x-2">',
-            '  <select onchange="updateTaskStatus(\'' + act.id + '\', this.value, \'operator\')" class="bg-white border border-slate-300 text-slate-800 text-[11px] rounded px-2 py-1 font-medium">',
-            '    <option value="Open" ' + (act.status === 'Open' ? 'selected' : '') + '>Open</option>',
-            '    <option value="In Progress" ' + (act.status === 'In Progress' ? 'selected' : '') + '>In Progress</option>',
-            '    <option value="Complete" ' + (act.status === 'Complete' ? 'selected' : '') + '>Complete</option>',
-            '  </select>',
-            '  <button onclick="deleteTask(\'' + act.id + '\', \'operator\')" title="Delete task" class="text-slate-400 hover:text-rose-600 p-1">',
-            '    <i class="fa-solid fa-trash text-xs"></i>',
-            '  </button>',
-            '</div>'
-          ].join('');
-
-          actList.appendChild(div);
-        });
-      }
-
-      const occBody = document.getElementById("op-incidents-table-body");
-      occBody.innerHTML = "";
-      if (state.occs.length === 0) {
-        occBody.innerHTML = '<tr><td colspan="6" class="p-3 text-center text-slate-400 italic">No counseling occurrences recorded</td></tr>';
-      } else {
-        state.occs.forEach(occ => {
-          const tr = document.createElement("tr");
-          tr.className = "hover:bg-slate-50";
-
-          const impactedLabels = [];
-          OPERATOR_COMPETENCIES.forEach((c, idx) => {
-            if (occ["impacts_c" + (idx + 1)]) impactedLabels.push(c.label);
-          });
-
-          const escalBadge = occ.immediate_escalation ? '<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold text-[10px]">YES</span>' : '<span class="text-slate-400 font-medium">No</span>';
-
-          tr.innerHTML = [
-            '<td class="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">' + occ.date + '</td>',
-            '<td class="py-2.5 px-3 font-medium text-slate-800">' + occ.reason + '</td>',
-            '<td class="py-2.5 px-3 text-center font-mono font-bold text-rose-600">+' + occ.points + '</td>',
-            '<td class="py-2.5 px-3 text-center">' + escalBadge + '</td>',
-            '<td class="py-2.5 px-3 text-slate-600">' + (impactedLabels.join(', ') || '<span class="text-slate-400">None</span>') + '</td>',
-            '<td class="py-2.5 px-3 text-right">',
-            '  <button onclick="deleteOccurrence(\'' + occ.id + '\', \'operator\')" class="text-slate-400 hover:text-rose-600">',
-            '    <i class="fa-solid fa-trash text-xs"></i>',
-            '  </button>',
-            '</td>'
-          ].join('');
-
-          occBody.appendChild(tr);
-        });
-      }
-
       renderOperatorRadar(state);
     }
 
@@ -2189,39 +1724,26 @@
           labels: labels,
           datasets: [
             {
-              label: 'Net Rating (Deductions Applied)',
+              label: 'Net Rating',
               data: netData,
               backgroundColor: 'rgba(99, 102, 241, 0.25)',
               borderColor: 'rgba(99, 102, 241, 1)',
-              borderWidth: 2,
-              pointBackgroundColor: 'rgba(99, 102, 241, 1)',
-              pointRadius: 3
+              borderWidth: 2
             },
             {
-              label: 'Baseline Evaluation',
+              label: 'Baseline',
               data: baseData,
               backgroundColor: 'rgba(203, 213, 225, 0.2)',
               borderColor: 'rgba(148, 163, 184, 0.8)',
               borderWidth: 1.5,
-              borderDash: [4, 4],
-              pointRadius: 2
+              borderDash: [4, 4]
             }
           ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          scales: {
-            r: {
-              min: 0,
-              max: 5,
-              ticks: { stepSize: 1, display: false },
-              pointLabels: { font: { size: 10, weight: '600' }, color: '#475569' }
-            }
-          },
-          plugins: {
-            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
-          }
+          scales: { r: { min: 0, max: 5 } }
         }
       });
     }
@@ -2257,25 +1779,12 @@
             '</span></td>';
         }).join('');
 
-        const statusBadges = {
-          "Good Standing": "bg-emerald-100 text-emerald-800 border-emerald-300",
-          "Oral Warning": "bg-amber-100 text-amber-800 border-amber-300",
-          "Written Warning": "bg-orange-100 text-orange-800 border-orange-300",
-          "Final Warning": "bg-rose-100 text-rose-800 border-rose-300"
-        };
-
         tr.innerHTML = [
           '<td class="py-3 px-4 font-bold text-slate-900">' + ld.name + '</td>',
           compCells,
           '<td class="py-3 px-3 text-center font-mono font-bold text-slate-900">' + state.totalPoints + '</td>',
-          '<td class="py-3 px-4 text-center">',
-          '  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ' + (statusBadges[state.status] || 'bg-slate-100 text-slate-700') + '">' + state.status + '</span>',
-          '</td>',
-          '<td class="py-3 px-4 text-right">',
-          '  <button onclick="document.getElementById(\'lead-inspector-select\').value = \'' + ld.name + '\'; inspectLead(\'' + ld.name + '\');" class="text-indigo-600 hover:text-indigo-900 font-semibold text-xs flex items-center gap-1 ml-auto">',
-          '    View <i class="fa-solid fa-chevron-right text-[10px]"></i>',
-          '  </button>',
-          '</td>'
+          '<td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold border bg-emerald-100 text-emerald-800">' + state.status + '</span></td>',
+          '<td class="py-3 px-4 text-right"><button onclick="inspectLead(\'' + ld.name + '\')" class="text-indigo-600 font-semibold text-xs">View</button></td>'
         ].join('');
 
         tbody.appendChild(tr);
@@ -2293,89 +1802,6 @@
       document.getElementById("lead-card-manual-pts").innerText = state.manualPoints;
       document.getElementById("lead-card-total-pts").innerText = state.totalPoints;
 
-      const badge = document.getElementById("lead-card-status-badge");
-      const statusClasses = {
-        "Good Standing": "bg-emerald-100 text-emerald-800",
-        "Oral Warning": "bg-amber-100 text-amber-800",
-        "Written Warning": "bg-orange-100 text-orange-800",
-        "Final Warning": "bg-rose-100 text-rose-800"
-      };
-      badge.className = "px-3 py-1 rounded-full text-xs font-bold " + (statusClasses[state.status] || 'bg-slate-100 text-slate-800');
-      badge.innerText = state.status;
-
-      const actList = document.getElementById("lead-action-items-list");
-      actList.innerHTML = "";
-      if (state.actions.length === 0) {
-        actList.innerHTML = '<div class="p-3 text-center text-slate-400 text-xs italic">No active supervisory action plans</div>';
-      } else {
-        const todayStr = new Date().toISOString().split('T')[0];
-        state.actions.forEach(act => {
-          const isOverdue = (act.status !== 'Complete' && act.due_date && act.due_date < todayStr);
-          const priorityColorClass = (act.priority === 'High') ? 'text-rose-600' : 'text-slate-700';
-          const overdueBadge = isOverdue ? '<span class="px-1.5 py-0.5 rounded bg-rose-600 text-white text-[9px] font-bold uppercase tracking-wider">Overdue (+1 Pt)</span>' : '';
-          const cardClass = isOverdue ? 'bg-rose-50/70 border-rose-200' : 'bg-white border-slate-200';
-
-          const div = document.createElement("div");
-          div.className = "p-3 rounded-lg border flex items-center justify-between gap-3 text-xs " + cardClass;
-          div.innerHTML = [
-            '<div class="flex-1">',
-            '  <div class="flex items-center gap-2">',
-            '    <span class="font-bold text-slate-900">' + act.task_name + '</span>',
-            overdueBadge,
-            '  </div>',
-            '  <div class="text-[11px] text-slate-500 mt-0.5">',
-            '    Priority: <strong class="' + priorityColorClass + '">' + act.priority + '</strong> | Due: ' + (act.due_date || 'No Date'),
-            '  </div>',
-            '</div>',
-            '<div class="flex items-center space-x-2">',
-            '  <select onchange="updateTaskStatus(\'' + act.id + '\', this.value, \'lead\')" class="bg-white border border-slate-300 text-slate-800 text-[11px] rounded px-2 py-1 font-medium">',
-            '    <option value="Open" ' + (act.status === 'Open' ? 'selected' : '') + '>Open</option>',
-            '    <option value="In Progress" ' + (act.status === 'In Progress' ? 'selected' : '') + '>In Progress</option>',
-            '    <option value="Complete" ' + (act.status === 'Complete' ? 'selected' : '') + '>Complete</option>',
-            '  </select>',
-            '  <button onclick="deleteTask(\'' + act.id + '\', \'lead\')" title="Delete task" class="text-slate-400 hover:text-rose-600 p-1">',
-            '    <i class="fa-solid fa-trash text-xs"></i>',
-            '  </button>',
-            '</div>'
-          ].join('');
-
-          actList.appendChild(div);
-        });
-      }
-
-      const occBody = document.getElementById("lead-incidents-table-body");
-      occBody.innerHTML = "";
-      if (state.occs.length === 0) {
-        occBody.innerHTML = '<tr><td colspan="6" class="p-3 text-center text-slate-400 italic">No supervisory counseling occurrences recorded</td></tr>';
-      } else {
-        state.occs.forEach(occ => {
-          const tr = document.createElement("tr");
-          tr.className = "hover:bg-slate-50";
-
-          const impactedLabels = [];
-          LEAD_COMPETENCIES.forEach((c, idx) => {
-            if (occ["impacts_c" + (idx + 1)]) impactedLabels.push(c.label);
-          });
-
-          const escalBadge = occ.immediate_escalation ? '<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold text-[10px]">YES</span>' : '<span class="text-slate-400 font-medium">No</span>';
-
-          tr.innerHTML = [
-            '<td class="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">' + occ.date + '</td>',
-            '<td class="py-2.5 px-3 font-medium text-slate-800">' + occ.reason + '</td>',
-            '<td class="py-2.5 px-3 text-center font-mono font-bold text-rose-600">+' + occ.points + '</td>',
-            '<td class="py-2.5 px-3 text-center">' + escalBadge + '</td>',
-            '<td class="py-2.5 px-3 text-slate-600">' + (impactedLabels.join(', ') || '<span class="text-slate-400">None</span>') + '</td>',
-            '<td class="py-2.5 px-3 text-right">',
-            '  <button onclick="deleteOccurrence(\'' + occ.id + '\', \'lead\')" class="text-slate-400 hover:text-rose-600">',
-            '    <i class="fa-solid fa-trash text-xs"></i>',
-            '  </button>',
-            '</td>'
-          ].join('');
-
-          occBody.appendChild(tr);
-        });
-      }
-
       renderLeadRadar(state);
     }
 
@@ -2383,7 +1809,6 @@
       const ctx = document.getElementById("leadRadarChart").getContext("2d");
       const labels = LEAD_COMPETENCIES.map(c => c.label);
       const netData = LEAD_COMPETENCIES.map(c => state.netScores[c.key]);
-      const baseData = LEAD_COMPETENCIES.map(c => state.baseScores[c.key]);
 
       if (leadRadarChartInstance) {
         leadRadarChartInstance.destroy();
@@ -2393,483 +1818,59 @@
         type: 'radar',
         data: {
           labels: labels,
-          datasets: [
-            {
-              label: 'Leadership Rating (Deductions Applied)',
-              data: netData,
-              backgroundColor: 'rgba(49, 46, 129, 0.25)',
-              borderColor: 'rgba(49, 46, 129, 1)',
-              borderWidth: 2,
-              pointBackgroundColor: 'rgba(49, 46, 129, 1)',
-              pointRadius: 3
-            },
-            {
-              label: 'Baseline Evaluations',
-              data: baseData,
-              backgroundColor: 'rgba(203, 213, 225, 0.2)',
-              borderColor: 'rgba(148, 163, 184, 0.8)',
-              borderWidth: 1.5,
-              borderDash: [4, 4],
-              pointRadius: 2
-            }
-          ]
+          datasets: [{
+            label: 'Leadership Rating',
+            data: netData,
+            backgroundColor: 'rgba(49, 46, 129, 0.25)',
+            borderColor: 'rgba(49, 46, 129, 1)',
+            borderWidth: 2
+          }]
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            r: {
-              min: 0,
-              max: 5,
-              ticks: { stepSize: 1, display: false },
-              pointLabels: { font: { size: 10, weight: '600' }, color: '#475569' }
-            }
-          },
-          plugins: {
-            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
-          }
-        }
+        options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 0, max: 5 } } }
       });
     }
 
-    function jumpToEntityTrend(entityName, type) {
-      if (!entityName) return;
-      switchTab('tab-analytics');
-      const select = document.getElementById("trendline-entity-select");
-      if (select) {
-        select.value = (type === 'operator' ? ("OP:" + entityName) : ("LEAD:" + entityName));
-        renderAnalyticsView();
-      }
-    }
-
     function renderAnalyticsView() {
-      const scopeVal = document.getElementById("trendline-entity-select") ? document.getElementById("trendline-entity-select").value : "ALL_OPS";
-      let relevantLogs = [];
-      let isLeadTier = false;
-      let isIndividual = false;
-      let targetName = "";
-
-      if (scopeVal.startsWith("OP:")) {
-        isIndividual = true;
-        targetName = scopeVal.replace("OP:", "");
-        relevantLogs = (appState.weekly_logs || []).filter(l => l.employee_name === targetName);
-        isLeadTier = false;
-      } else if (scopeVal.startsWith("LEAD:")) {
-        isIndividual = true;
-        targetName = scopeVal.replace("LEAD:", "");
-        relevantLogs = (appState.lead_weekly_logs || []).filter(l => l.lead_name === targetName);
-        isLeadTier = true;
-      } else if (scopeVal === "ALL_LEADS") {
-        relevantLogs = appState.lead_weekly_logs || [];
-        isLeadTier = true;
-      } else {
-        relevantLogs = appState.weekly_logs || [];
-        isLeadTier = false;
-      }
-
-      let totalTasks = 0;
-      let totalOccs = 0;
-      let totalHours = 0;
-
-      if (isIndividual) {
-        totalTasks = relevantLogs.reduce((acc, c) => acc + (parseInt(c.tasks_completed) || 0), 0);
-        totalHours = relevantLogs.reduce((acc, c) => acc + (parseFloat(c.hours_logged) || 0), 0);
-        const occList = isLeadTier ? (appState.lead_manual_occurrences || []) : (appState.manual_occurrences || []);
-        totalOccs = occList.filter(o => o.entity_name === targetName).length;
-
-        document.getElementById("scorecard-tasks-label").innerText = targetName + " - Completed Tasks";
-        document.getElementById("scorecard-occs-label").innerText = targetName + " - Total Counseling Incidents";
-        document.getElementById("scorecard-hours-label").innerText = targetName + " - Total Logged Hours";
-      } else {
-        const allLogs = (appState.weekly_logs || []).concat(appState.lead_weekly_logs || []);
-        totalTasks = allLogs.reduce((acc, c) => acc + (parseInt(c.tasks_completed) || 0), 0);
-        totalHours = allLogs.reduce((acc, c) => acc + (parseFloat(c.hours_logged) || 0), 0);
-        totalOccs = (appState.manual_occurrences || []).length + (appState.lead_manual_occurrences || []).length;
-
-        document.getElementById("scorecard-tasks-label").innerText = "Total Tasks Completed";
-        document.getElementById("scorecard-occs-label").innerText = "Total Counseling Incidents";
-        document.getElementById("scorecard-hours-label").innerText = "Total Production Hours";
-      }
+      const logs = appState.weekly_logs || [];
+      const totalTasks = logs.reduce((acc, c) => acc + (parseInt(c.tasks_completed) || 0), 0);
+      const totalHours = logs.reduce((acc, c) => acc + (parseFloat(c.hours_logged) || 0), 0);
+      const totalOccs = (appState.manual_occurrences || []).length;
 
       document.getElementById("kpi-total-tasks").innerText = totalTasks.toLocaleString();
       document.getElementById("kpi-total-occs").innerText = totalOccs.toLocaleString();
       document.getElementById("kpi-total-hours").innerText = totalHours.toFixed(1);
-
-      renderTimelineChart(relevantLogs, isLeadTier, isIndividual, targetName);
-      renderHoursBarChart(isIndividual, targetName, relevantLogs);
     }
 
-    function renderTimelineChart(logs, isLeadTier, isIndividual, targetName) {
-      const ctx = document.getElementById("competencyTimelineChart").getContext("2d");
-      const titleElem = document.getElementById("trend-line-title");
-      const subElem = document.getElementById("trend-line-subtitle");
+    function renderRosterSettings() {}
 
-      if (isIndividual) {
-        titleElem.innerText = targetName + " - Historical Competency Trajectory";
-        subElem.innerText = "Chronological evaluations for " + targetName + " across evaluation cycles";
-      } else {
-        titleElem.innerText = isLeadTier ? "Team Leads Competency Trajectory" : "Operators Competency Trajectory";
-        subElem.innerText = isLeadTier ? "Average scores across all leadership evaluations over time" : "Average scores across all operator weekly logs over time";
-      }
+    function switchTab(tabId) {
+      const navMap = {
+        'tab-operators': { view: 'view-operators', nav: 'nav-operators' },
+        'tab-leads': { view: 'view-leads', nav: 'nav-leads' },
+        'tab-analytics': { view: 'view-analytics', nav: 'nav-analytics' },
+        'tab-settings': { view: 'view-settings', nav: 'nav-settings' }
+      };
 
-      const dates = Array.from(new Set(logs.map(l => l.date))).sort();
-      const comps = isLeadTier ? LEAD_COMPETENCIES : OPERATOR_COMPETENCIES;
-      const palette = ['#4f46e5', '#059669', '#d97706', '#dc2626', '#7c3aed', '#0284c7'];
+      Object.keys(navMap).forEach(key => {
+        const item = navMap[key];
+        const viewElem = document.getElementById(item.view);
+        const navElem = document.getElementById(item.nav);
 
-      const datasets = comps.map((comp, idx) => {
-        const points = dates.map(dt => {
-          const dateLogs = logs.filter(l => l.date === dt);
-          if (dateLogs.length === 0) return null;
-          const sum = dateLogs.reduce((acc, curr) => acc + (parseFloat(curr[comp.key]) || 0), 0);
-          return (sum / dateLogs.length).toFixed(2);
-        });
-
-        return {
-          label: comp.label,
-          data: points,
-          borderColor: palette[idx % palette.length],
-          backgroundColor: palette[idx % palette.length],
-          tension: 0.3,
-          borderWidth: 2,
-          pointRadius: 4,
-          pointHoverRadius: 6
-        };
-      });
-
-      if (competencyTimelineChartInstance) {
-        competencyTimelineChartInstance.destroy();
-      }
-
-      competencyTimelineChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: { labels: dates, datasets: datasets },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: { min: 1.0, max: 5.0, ticks: { stepSize: 0.5, font: { size: 10 } } },
-            x: { ticks: { font: { size: 10 } } }
-          },
-          plugins: {
-            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
-          }
-        }
-      });
-    }
-
-    function renderHoursBarChart(isIndividual, targetName, individualLogs) {
-      const ctx = document.getElementById("hoursBarChart").getContext("2d");
-      const titleElem = document.getElementById("hours-bar-title");
-      const subElem = document.getElementById("hours-bar-subtitle");
-
-      let labels = [];
-      let data = [];
-      let bgColor = 'rgba(79, 70, 229, 0.85)';
-
-      if (isIndividual) {
-        titleElem.innerText = targetName + " - Weekly Hours";
-        subElem.innerText = "Hours logged per weekly evaluation cycle";
-        const sorted = individualLogs.slice().sort((a, b) => a.date.localeCompare(b.date));
-        labels = sorted.map(l => l.date);
-        data = sorted.map(l => parseFloat(l.hours_logged) || 0);
-        bgColor = 'rgba(5, 150, 105, 0.85)';
-      } else {
-        titleElem.innerText = "Hours by Assigned Lead";
-        subElem.innerText = "Total production effort grouped by supervisory team";
-        const leads = (appState.leads || []).filter(l => l.active !== false).map(l => l.name);
-        labels = leads;
-        data = leads.map(ld => {
-          const opsForLead = (appState.employees || []).filter(e => e.lead === ld).map(e => e.name);
-          const opHours = (appState.weekly_logs || []).filter(l => opsForLead.includes(l.employee_name)).reduce((acc, c) => acc + (parseFloat(c.hours_logged) || 0), 0);
-          const leadHours = (appState.lead_weekly_logs || []).filter(l => l.lead_name === ld).reduce((acc, c) => acc + (parseFloat(c.hours_logged) || 0), 0);
-          return opHours + leadHours;
-        });
-      }
-
-      if (hoursBarChartInstance) {
-        hoursBarChartInstance.destroy();
-      }
-
-      hoursBarChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Hours Logged',
-            data: data,
-            backgroundColor: bgColor,
-            borderRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: { beginAtZero: true, ticks: { font: { size: 10 } } },
-            x: { ticks: { font: { size: 10 } } }
-          },
-          plugins: {
-            legend: { display: false }
-          }
-        }
-      });
-    }
-
-    function renderRosterSettings() {
-      const opListElem = document.getElementById("roster-operators-list");
-      const leadListElem = document.getElementById("roster-leads-list");
-      const activeLeads = (appState.leads || []).filter(l => l.active !== false);
-
-      opListElem.innerHTML = "";
-      (appState.employees || []).forEach(emp => {
-        const div = document.createElement("div");
-        div.className = "p-3 rounded-lg border flex items-center justify-between gap-3 text-xs " + (emp.active === false ? 'bg-slate-100/70 border-slate-200 opacity-60' : 'bg-slate-50 border-slate-200');
-
-        const leadOptions = activeLeads.map(l => '<option value="' + l.name + '" ' + (l.name === emp.lead ? 'selected' : '') + '>' + l.name + '</option>').join('');
-        const offboardBadge = (emp.active === false) ? '<span class="text-[9px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded uppercase font-bold">Offboarded</span>' : '';
-
-        const actionBtns = (emp.active !== false) ?
-          '<button onclick="editOperatorName(\'' + emp.name + '\')" title="Rename" class="text-slate-400 hover:text-indigo-600 p-1.5"><i class="fa-solid fa-pen-to-square"></i></button>' +
-          '<button onclick="toggleOffboardOperator(\'' + emp.name + '\')" title="Offboard" class="text-slate-400 hover:text-rose-600 p-1.5"><i class="fa-solid fa-user-xmark"></i></button>' :
-          '<button onclick="toggleOffboardOperator(\'' + emp.name + '\')" title="Re-activate" class="text-xs text-indigo-600 hover:underline font-semibold">Reactivate</button>';
-
-        div.innerHTML = [
-          '<div class="flex-1">',
-          '  <div class="flex items-center gap-2">',
-          '    <span class="font-bold text-slate-900">' + emp.name + '</span>',
-          offboardBadge,
-          '  </div>',
-          '  <div class="flex items-center gap-2 mt-1 text-[11px] text-slate-500">',
-          '    <span>Assigned Supervisor:</span>',
-          '    <select onchange="reassignOperatorLead(\'' + emp.name + '\', this.value)" class="bg-white border border-slate-300 rounded px-1.5 py-0.5 text-[11px] font-medium" ' + (emp.active === false ? 'disabled' : '') + '>',
-          '      <option value="">-- No Lead --</option>',
-          leadOptions,
-          '    </select>',
-          '  </div>',
-          '</div>',
-          '<div class="flex items-center space-x-1">',
-          actionBtns,
-          '</div>'
-        ].join('');
-
-        opListElem.appendChild(div);
-      });
-
-      leadListElem.innerHTML = "";
-      (appState.leads || []).forEach(ld => {
-        const div = document.createElement("div");
-        div.className = "p-3 rounded-lg border flex items-center justify-between gap-3 text-xs " + (ld.active === false ? 'bg-slate-100/70 border-slate-200 opacity-60' : 'bg-slate-50 border-slate-200');
-
-        const countSubordinates = (appState.employees || []).filter(e => e.lead === ld.name && e.active !== false).length;
-        const offboardBadge = (ld.active === false) ? '<span class="text-[9px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded uppercase font-bold">Offboarded</span>' : '';
-
-        const actionBtns = (ld.active !== false) ?
-          '<button onclick="editLeadName(\'' + ld.name + '\')" title="Rename" class="text-slate-400 hover:text-indigo-600 p-1.5"><i class="fa-solid fa-pen-to-square"></i></button>' +
-          '<button onclick="toggleOffboardLead(\'' + ld.name + '\')" title="Offboard" class="text-slate-400 hover:text-rose-600 p-1.5"><i class="fa-solid fa-user-xmark"></i></button>' :
-          '<button onclick="toggleOffboardLead(\'' + ld.name + '\')" title="Reactivate" class="text-xs text-indigo-600 hover:underline font-semibold">Reactivate</button>';
-
-        div.innerHTML = [
-          '<div>',
-          '  <div class="flex items-center gap-2">',
-          '    <span class="font-bold text-slate-900">' + ld.name + '</span>',
-          offboardBadge,
-          '  </div>',
-          '  <div class="text-[11px] text-slate-500 mt-0.5">Supervising <strong>' + countSubordinates + '</strong> active operator(s)</div>',
-          '</div>',
-          '<div class="flex items-center space-x-1">',
-          actionBtns,
-          '</div>'
-        ].join('');
-
-        leadListElem.appendChild(div);
-      });
-    }
-
-    function promptAddOperator() {
-      const name = prompt("Enter new Operator Full Name:");
-      if (!name || !name.trim()) return;
-      const cleanName = name.trim();
-
-      if ((appState.employees || []).some(e => e.name.toLowerCase() === cleanName.toLowerCase())) {
-        showAppToast("An operator with this name already exists.", "warning");
-        return;
-      }
-
-      const activeLeads = (appState.leads || []).filter(l => l.active !== false);
-      const lead = activeLeads[0] ? activeLeads[0].name : "";
-
-      appState.employees.push({ name: cleanName, lead: lead, active: true });
-      commitStateChanges();
-      renderAll();
-      showAppToast('Operator "' + cleanName + '" added!', "success");
-    }
-
-    function promptAddLead() {
-      const name = prompt("Enter new Team Lead Full Name:");
-      if (!name || !name.trim()) return;
-      const cleanName = name.trim();
-
-      if ((appState.leads || []).some(l => l.name.toLowerCase() === cleanName.toLowerCase())) {
-        showAppToast("A lead with this name already exists.", "warning");
-        return;
-      }
-
-      appState.leads.push({ name: cleanName, active: true });
-      commitStateChanges();
-      renderAll();
-      showAppToast('Team Lead "' + cleanName + '" added!', "success");
-    }
-
-    function reassignOperatorLead(opName, newLead) {
-      const op = (appState.employees || []).find(e => e.name === opName);
-      if (op) {
-        op.lead = newLead;
-        commitStateChanges();
-        renderAll();
-        showAppToast("Assigned " + opName + " to " + (newLead || "No Lead"), "success");
-      }
-    }
-
-    function toggleOffboardOperator(opName) {
-      const op = (appState.employees || []).find(e => e.name === opName);
-      if (op) {
-        op.active = !op.active;
-        commitStateChanges();
-        renderAll();
-        showAppToast(opName + " is now " + (op.active ? "Active" : "Offboarded"), "info");
-      }
-    }
-
-    function toggleOffboardLead(leadName) {
-      const ld = (appState.leads || []).find(l => l.name === leadName);
-      if (ld) {
-        ld.active = !ld.active;
-        if (!ld.active) {
-          const remainingLead = (appState.leads || []).find(l => l.name !== leadName && l.active !== false);
-          (appState.employees || []).forEach(e => {
-            if (e.lead === leadName) e.lead = remainingLead ? remainingLead.name : "";
-          });
-        }
-        commitStateChanges();
-        renderAll();
-        showAppToast(leadName + " is now " + (ld.active ? "Active" : "Offboarded"), "info");
-      }
-    }
-
-    function editOperatorName(oldName) {
-      const nextName = prompt("Rename Operator:", oldName);
-      if (!nextName || !nextName.trim() || nextName.trim() === oldName) return;
-      const clean = nextName.trim();
-
-      const op = (appState.employees || []).find(e => e.name === oldName);
-      if (op) op.name = clean;
-
-      (appState.weekly_logs || []).forEach(l => { if (l.employee_name === oldName) l.employee_name = clean; });
-      (appState.manual_occurrences || []).forEach(o => { if (o.entity_name === oldName) o.entity_name = clean; });
-      (appState.action_items || []).forEach(a => { if (a.entity_name === oldName) a.entity_name = clean; });
-
-      commitStateChanges();
-      renderAll();
-      showAppToast("Renamed " + oldName + " to " + clean, "success");
-    }
-
-    function editLeadName(oldName) {
-      const nextName = prompt("Rename Team Lead:", oldName);
-      if (!nextName || !nextName.trim() || nextName.trim() === oldName) return;
-      const clean = nextName.trim();
-
-      const ld = (appState.leads || []).find(l => l.name === oldName);
-      if (ld) ld.name = clean;
-
-      (appState.employees || []).forEach(e => { if (e.lead === oldName) e.lead = clean; });
-      (appState.weekly_logs || []).forEach(l => { if (l.lead_name === oldName) l.lead_name = clean; });
-      (appState.lead_weekly_logs || []).forEach(l => { if (l.lead_name === oldName) l.lead_name = clean; });
-      (appState.lead_manual_occurrences || []).forEach(o => { if (o.entity_name === oldName) o.entity_name = clean; });
-      (appState.lead_action_items || []).forEach(a => { if (a.entity_name === oldName) a.entity_name = clean; });
-
-      commitStateChanges();
-      renderAll();
-      showAppToast("Renamed Lead " + oldName + " to " + clean, "success");
-    }
-
-    function updateTaskStatus(taskId, newStatus, tier) {
-      const list = (tier === 'operator') ? appState.action_items : appState.lead_action_items;
-      const task = list.find(t => t.id === taskId);
-      if (task) {
-        task.status = newStatus;
-        commitStateChanges();
-        if (tier === 'operator') {
-          inspectOperator(document.getElementById("op-inspector-select").value);
+        if (key === tabId) {
+          viewElem.classList.remove("hidden");
+          navElem.className = "tab-btn py-3 px-3 border-b-2 border-indigo-500 text-white flex items-center gap-2 whitespace-nowrap";
         } else {
-          inspectLead(document.getElementById("lead-inspector-select").value);
+          viewElem.classList.add("hidden");
+          navElem.className = "tab-btn py-3 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 whitespace-nowrap";
         }
-        renderOperatorTable();
-        renderLeadTable();
-        showAppToast("Action item updated!", "success");
-      }
-    }
-
-    function deleteTask(taskId, tier) {
-      if (!confirm("Are you sure you want to remove this action item?")) return;
-      if (tier === 'operator') {
-        appState.action_items = appState.action_items.filter(t => t.id !== taskId);
-        inspectOperator(document.getElementById("op-inspector-select").value);
-      } else {
-        appState.lead_action_items = appState.lead_action_items.filter(t => t.id !== taskId);
-        inspectLead(document.getElementById("lead-inspector-select").value);
-      }
-      commitStateChanges();
-      renderOperatorTable();
-      renderLeadTable();
-      showAppToast("Action item removed.", "info");
-    }
-
-    function deleteOccurrence(occId, tier) {
-      if (!confirm("Are you sure you want to delete this incident occurrence record?")) return;
-      if (tier === 'operator') {
-        appState.manual_occurrences = appState.manual_occurrences.filter(o => o.id !== occId);
-        inspectOperator(document.getElementById("op-inspector-select").value);
-      } else {
-        appState.lead_manual_occurrences = appState.lead_manual_occurrences.filter(o => o.id !== occId);
-        inspectLead(document.getElementById("lead-inspector-select").value);
-      }
-      commitStateChanges();
-      renderOperatorTable();
-      renderLeadTable();
-      renderAnalyticsView();
-      showAppToast("Counseling occurrence deleted.", "info");
-    }
-
-    function openEvaluationModal() {
-      document.getElementById("eval-date").value = new Date().toISOString().split('T')[0];
-      updateEvaluationTierUI();
-      document.getElementById("modal-evaluation").classList.remove("hidden");
-    }
-
-    function closeEvaluationModal() {
-      document.getElementById("modal-evaluation").classList.add("hidden");
-    }
-
-    function updateEvaluationTierUI() {
-      const tier = document.getElementById("eval-tier-select").value;
-      const nameSelect = document.getElementById("eval-name-select");
-      const leadWrapper = document.getElementById("eval-lead-wrapper");
-      const leadSelect = document.getElementById("eval-lead-select");
-      const header = document.getElementById("eval-comp-header");
-
-      nameSelect.innerHTML = "";
-      leadSelect.innerHTML = "";
-
-      const activeLeads = (appState.leads || []).filter(l => l.active !== false);
-      activeLeads.forEach(l => {
-        const opt = document.createElement("option");
-        opt.value = l.name;
-        opt.innerText = l.name;
-        leadSelect.appendChild(opt);
       });
+    }
 
-      if (tier === 'operator') {
-        leadWrapper.classList.remove("hidden");
-        header.innerText = "Operator Competencies (Scale: 1.0 - 5.0)";
-        OPERATOR_COMPETENCIES.forEach((c, idx) => {
-          document.getElementById("lbl-c" + (idx +
+    // App Initialization
+    document.addEventListener("DOMContentLoaded", () => {
+      initAppState();
+      renderAll();
+    });
+  </script>
+</body>
+</html>
