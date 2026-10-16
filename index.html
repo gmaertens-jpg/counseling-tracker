@@ -1,0 +1,3468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trial Counseling Tracker | Performance & Disciplinary Analytics</title>
+
+  <!-- External Libraries: Tailwind CSS, FontAwesome, Chart.js -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .anim-pulse { animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @keyframes spin-slow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .anim-sync { animation: spin-slow 1s linear infinite; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased">
+
+  <!-- ========================================== -->
+  <!-- 1. TOP HEADER / APP NAVIGATION            -->
+  <!-- ========================================== -->
+  <header class="bg-slate-900 text-white shadow-md border-b border-slate-800 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center py-3.5 gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-xl shadow-md">
+          <i class="fa-solid fa-scale-balanced"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight flex items-center gap-2">
+            Trial Counseling Tracker
+            <span class="text-[10px] uppercase font-semibold bg-indigo-500/30 text-indigo-300 px-2 py-0.5 rounded border border-indigo-400/30">Dual-Tier</span>
+          </h1>
+          <p class="text-xs text-slate-400">Progressive Discipline, Competency Ratings & Remediation Engine</p>
+        </div>
+      </div>
+
+      <!-- Live Sync & Quick Actions -->
+      <div class="flex items-center space-x-2.5">
+        <!-- Google Sheets Sync Status Button with Auto-Sync countdown timer -->
+        <button id="cloud-sync-btn" onclick="openCloudConfigModal()" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-sm" title="Click to configure Cloud Sync and refresh intervals">
+          <span id="cloud-status-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 anim-pulse"></span>
+          <span id="cloud-status-text">Google Sheet Live</span>
+          <span id="auto-sync-timer-badge" class="bg-slate-900/80 text-[10px] font-mono text-emerald-400 px-1.5 py-0.5 rounded border border-slate-700/60">5:00</span>
+          <i id="cloud-sync-spinner" class="fa-solid fa-arrows-rotate hidden text-slate-400 anim-sync text-[11px]"></i>
+        </button>
+
+        <button onclick="syncWithGoogleSheet()" title="Sync live database with Google Sheet now" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 p-2 rounded-lg text-xs transition">
+          <i class="fa-solid fa-rotate"></i>
+        </button>
+
+        <!-- Action Modal Buttons -->
+        <div class="h-5 w-[1px] bg-slate-700 mx-1"></div>
+        <button onclick="openEvaluationModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm flex items-center gap-1.5">
+          <i class="fa-solid fa-clipboard-check"></i> <span class="hidden sm:inline">Log</span> Eval
+        </button>
+        <button onclick="openOccurrenceModal()" class="bg-rose-600 hover:bg-rose-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm flex items-center gap-1.5">
+          <i class="fa-solid fa-triangle-exclamation"></i> <span class="hidden sm:inline">Record</span> Incident
+        </button>
+        <button onclick="openActionModal()" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition shadow-sm flex items-center gap-1.5">
+          <i class="fa-solid fa-list-check"></i> <span class="hidden sm:inline">Add</span> Task
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800 flex space-x-1 sm:space-x-6 overflow-x-auto text-xs font-semibold custom-scrollbar">
+      <button onclick="switchTab('tab-operators')" id="nav-operators" class="tab-btn py-3 px-3 border-b-2 border-indigo-500 text-white flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-user-group text-indigo-400"></i> Operator Dashboard
+      </button>
+      <button onclick="switchTab('tab-leads')" id="nav-leads" class="tab-btn py-3 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-user-tie text-slate-400"></i> Team Lead Dashboard
+      </button>
+      <button onclick="switchTab('tab-analytics')" id="nav-analytics" class="tab-btn py-3 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-chart-line text-slate-400"></i> Yearly Trends &amp; Analytics
+      </button>
+      <button onclick="switchTab('tab-settings')" id="nav-settings" class="tab-btn py-3 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 whitespace-nowrap">
+        <i class="fa-solid fa-sliders text-slate-400"></i> Settings, Roster &amp; Matrix
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- 2. MAIN APPLICATION CONTENT AREA          -->
+  <!-- ========================================== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+
+    <!-- ---------------------------------------- -->
+    <!-- VIEW 1: OPERATOR DASHBOARD               -->
+    <!-- ---------------------------------------- -->
+    <div id="view-operators" class="space-y-6">
+      
+      <!-- Top Filters & Controls -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div class="flex items-center space-x-3 w-full md:w-auto">
+          <label for="filter-lead-select" class="text-xs font-bold text-slate-700 uppercase tracking-wider whitespace-nowrap">Supervising Lead:</label>
+          <select id="filter-lead-select" onchange="renderOperatorTable()" class="bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg px-3 py-2 font-medium focus:ring-2 focus:ring-indigo-500 w-full md:w-64">
+            <!-- Dynamic Leads Filter -->
+          </select>
+        </div>
+        <div class="text-xs text-slate-500 flex items-center gap-4">
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 4.0 - 5.0 (Strong)</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> 3.0 - 3.9 (Adequate)</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Below 3.0 (Deficit)</span>
+        </div>
+      </div>
+
+      <!-- Operator Roster Table -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+          <div>
+            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Operator Competency Baseline Grid</h2>
+            <p class="text-xs text-slate-500">Net ratings incorporate weekly baseline evaluations minus non-escalated occurrence deductions</p>
+          </div>
+          <span id="operator-count-pill" class="text-xs bg-slate-200 text-slate-700 px-2.5 py-1 rounded-full font-semibold">0 Active</span>
+        </div>
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider border-b border-slate-200 text-[11px]">
+              <tr>
+                <th class="py-3 px-4">Operator Name</th>
+                <th class="py-3 px-4">Assigned Lead</th>
+                <th class="py-3 px-3 text-center">Quality</th>
+                <th class="py-3 px-3 text-center">Efficiency</th>
+                <th class="py-3 px-3 text-center">Teamwork</th>
+                <th class="py-3 px-3 text-center">Communication</th>
+                <th class="py-3 px-3 text-center">Problem Solving</th>
+                <th class="py-3 px-3 text-center">Strategic Thinking</th>
+                <th class="py-3 px-3 text-center">Points</th>
+                <th class="py-3 px-4 text-center">Status</th>
+                <th class="py-3 px-4 text-right">Inspect</th>
+              </tr>
+            </thead>
+            <tbody id="operator-table-body" class="divide-y divide-slate-100 font-medium">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Operator Detail Inspector Container -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center pb-4 border-b border-slate-200 gap-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-base" id="op-inspector-avatar">
+              OP
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-base font-bold text-slate-900" id="op-inspector-name">Select an Operator</h3>
+                <span id="op-inspector-lead-badge" class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">Lead: --</span>
+              </div>
+              <p class="text-xs text-slate-500">Individual Disciplinary Dossier, Radar Profile &amp; Remediation Tasks</p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2 w-full md:w-auto">
+            <select id="op-inspector-select" onchange="inspectOperator(this.value)" class="bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg px-3 py-2 font-medium focus:ring-2 focus:ring-indigo-500 w-full md:w-60">
+              <!-- Dynamic options -->
+            </select>
+            <button onclick="jumpToEntityTrend(document.getElementById('op-inspector-select').value, 'operator')" title="View Yearly Trendline" class="bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-600 border border-slate-300 p-2 rounded-lg text-xs font-semibold transition">
+              <i class="fa-solid fa-chart-line"></i>
+            </button>
+            <button onclick="openAIMemoModal(document.getElementById('op-inspector-select').value, 'operator')" class="bg-purple-700 hover:bg-purple-800 text-white font-semibold text-xs px-3 py-2 rounded-lg shadow-sm transition flex items-center gap-1.5 whitespace-nowrap">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Memo / PIP
+            </button>
+            <button onclick="openAIRemediationModal(document.getElementById('op-inspector-select').value, 'operator')" class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs px-3 py-2 rounded-lg shadow-sm transition flex items-center gap-1.5 whitespace-nowrap">
+              <i class="fa-solid fa-lightbulb"></i> SMART Plan
+            </button>
+          </div>
+        </div>
+
+        <!-- Disciplinary Metric Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Automated Overdue Points</span>
+            <div class="mt-2 flex items-baseline justify-between">
+              <span class="text-2xl font-bold text-slate-900" id="op-card-auto-pts">0</span>
+              <span class="text-[11px] text-slate-500">+1 pt per past-due task</span>
+            </div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Manual Incident Points</span>
+            <div class="mt-2 flex items-baseline justify-between">
+              <span class="text-2xl font-bold text-slate-900" id="op-card-manual-pts">0</span>
+              <span class="text-[11px] text-slate-500">Direct counseling logs</span>
+            </div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Points Accrued</span>
+            <div class="mt-2 flex items-baseline justify-between">
+              <span class="text-2xl font-bold text-slate-900" id="op-card-total-pts">0</span>
+              <span class="text-[11px] font-semibold text-slate-600">Threshold: 20/40/50</span>
+            </div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Disciplinary Status</span>
+            <div class="mt-1 flex items-center">
+              <span id="op-card-status-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                Good Standing
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Radar & Active Tasks Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
+          <!-- Competency Radar Profile -->
+          <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200 flex flex-col">
+            <div class="flex justify-between items-center mb-2">
+              <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">6-Competency Radar Evaluation</h4>
+              <span class="text-[11px] text-slate-500 font-medium">Net (Post-Deduction) vs Base</span>
+            </div>
+            <div class="relative flex-1 min-h-[260px] flex items-center justify-center">
+              <canvas id="opRadarChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Active Action Items Table -->
+          <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200 flex flex-col">
+            <div class="flex justify-between items-center mb-3">
+              <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Active Action &amp; Remediation Plan</h4>
+              <button onclick="openActionModal(document.getElementById('op-inspector-select').value, 'operator')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                <i class="fa-solid fa-plus text-[10px]"></i> Add Task
+              </button>
+            </div>
+            <div class="overflow-y-auto max-h-[260px] custom-scrollbar space-y-2 pr-1" id="op-action-items-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Incident History for Inspector -->
+        <div class="border-t border-slate-200 pt-4">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Historical Counseling &amp; Infraction Occurrences</h4>
+            <button onclick="openOccurrenceModal(document.getElementById('op-inspector-select').value, 'operator')" class="text-xs font-semibold text-rose-600 hover:text-rose-800 flex items-center gap-1">
+              <i class="fa-solid fa-plus text-[10px]"></i> Record Incident
+            </button>
+          </div>
+          <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 text-slate-600 font-semibold uppercase tracking-wider border-b border-slate-200 text-[11px]">
+                <tr>
+                  <th class="py-2.5 px-3">Date</th>
+                  <th class="py-2.5 px-3">Reason / Description</th>
+                  <th class="py-2.5 px-3 text-center">Points</th>
+                  <th class="py-2.5 px-3 text-center">Immediate Escalation</th>
+                  <th class="py-2.5 px-3">Impacted Competencies</th>
+                  <th class="py-2.5 px-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="op-incidents-table-body" class="divide-y divide-slate-100">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ---------------------------------------- -->
+    <!-- VIEW 2: TEAM LEAD DASHBOARD              -->
+    <!-- ---------------------------------------- -->
+    <div id="view-leads" class="space-y-6 hidden">
+      
+      <!-- Lead Roster Table -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+          <div>
+            <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Team Lead Leadership Competency Grid</h2>
+            <p class="text-xs text-slate-500">Evaluated across Strategic Vision, Team Development, Execution, Stakeholder Management, Innovation &amp; Integrity</p>
+          </div>
+          <span id="lead-count-pill" class="text-xs bg-slate-200 text-slate-700 px-2.5 py-1 rounded-full font-semibold">0 Active Leads</span>
+        </div>
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider border-b border-slate-200 text-[11px]">
+              <tr>
+                <th class="py-3 px-4">Lead Name</th>
+                <th class="py-3 px-3 text-center">Vision</th>
+                <th class="py-3 px-3 text-center">Team Dev</th>
+                <th class="py-3 px-3 text-center">Execution</th>
+                <th class="py-3 px-3 text-center">Stakeholders</th>
+                <th class="py-3 px-3 text-center">Innovation</th>
+                <th class="py-3 px-3 text-center">Integrity</th>
+                <th class="py-3 px-3 text-center">Points</th>
+                <th class="py-3 px-4 text-center">Status</th>
+                <th class="py-3 px-4 text-right">Inspect</th>
+              </tr>
+            </thead>
+            <tbody id="lead-table-body" class="divide-y divide-slate-100 font-medium">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Team Lead Detail Inspector Container -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center pb-4 border-b border-slate-200 gap-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-indigo-900 text-indigo-100 flex items-center justify-center font-bold text-base" id="lead-inspector-avatar">
+              TL
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="text-base font-bold text-slate-900" id="lead-inspector-name">Select a Team Lead</h3>
+                <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">Tier 2: Leadership</span>
+              </div>
+              <p class="text-xs text-slate-500">Supervisory Standing, Accountability Profile &amp; Strategic Action Items</p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2 w-full md:w-auto">
+            <select id="lead-inspector-select" onchange="inspectLead(this.value)" class="bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg px-3 py-2 font-medium focus:ring-2 focus:ring-indigo-500 w-full md:w-60">
+              <!-- Dynamic options -->
+            </select>
+            <button onclick="jumpToEntityTrend(document.getElementById('lead-inspector-select').value, 'lead')" title="View Yearly Trendline" class="bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-600 border border-slate-300 p-2 rounded-lg text-xs font-semibold transition">
+              <i class="fa-solid fa-chart-line"></i>
+            </button>
+            <button onclick="openAIMemoModal(document.getElementById('lead-inspector-select').value, 'lead')" class="bg-purple-700 hover:bg-purple-800 text-white font-semibold text-xs px-3 py-2 rounded-lg shadow-sm transition flex items-center gap-1.5 whitespace-nowrap">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Memo / PIP
+            </button>
+            <button onclick="openAIRemediationModal(document.getElementById('lead-inspector-select').value, 'lead')" class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs px-3 py-2 rounded-lg shadow-sm transition flex items-center gap-1.5 whitespace-nowrap">
+              <i class="fa-solid fa-lightbulb"></i> SMART Plan
+            </button>
+          </div>
+        </div>
+
+        <!-- Lead Disciplinary Metric Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Automated Overdue Points</span>
+            <div class="mt-2 flex items-baseline justify-between">
+              <span class="text-2xl font-bold text-slate-900" id="lead-card-auto-pts">0</span>
+              <span class="text-[11px] text-slate-500">+1 pt per past-due task</span>
+            </div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Manual Incident Points</span>
+            <div class="mt-2 flex items-baseline justify-between">
+              <span class="text-2xl font-bold text-slate-900" id="lead-card-manual-pts">0</span>
+              <span class="text-[11px] text-slate-500">Supervisory citations</span>
+            </div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Points Accrued</span>
+            <div class="mt-2 flex items-baseline justify-between">
+              <span class="text-2xl font-bold text-slate-900" id="lead-card-total-pts">0</span>
+              <span class="text-[11px] font-semibold text-slate-600">Threshold: 20/40/50</span>
+            </div>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Disciplinary Status</span>
+            <div class="mt-1 flex items-center">
+              <span id="lead-card-status-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                Good Standing
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Radar & Active Tasks Layout for Lead -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
+          <!-- Competency Radar Profile -->
+          <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200 flex flex-col">
+            <div class="flex justify-between items-center mb-2">
+              <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Leadership Competency Profile</h4>
+              <span class="text-[11px] text-slate-500 font-medium">Net vs Baseline</span>
+            </div>
+            <div class="relative flex-1 min-h-[260px] flex items-center justify-center">
+              <canvas id="leadRadarChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Active Action Items Table -->
+          <div class="bg-slate-50/70 p-4 rounded-xl border border-slate-200 flex flex-col">
+            <div class="flex justify-between items-center mb-3">
+              <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Supervisory Deliverables &amp; PIP Tasks</h4>
+              <button onclick="openActionModal(document.getElementById('lead-inspector-select').value, 'lead')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                <i class="fa-solid fa-plus text-[10px]"></i> Add Task
+              </button>
+            </div>
+            <div class="overflow-y-auto max-h-[260px] custom-scrollbar space-y-2 pr-1" id="lead-action-items-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Incident History for Lead Inspector -->
+        <div class="border-t border-slate-200 pt-4">
+          <div class="flex justify-between items-center mb-3">
+            <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Supervisory Counseling &amp; Infraction Occurrences</h4>
+            <button onclick="openOccurrenceModal(document.getElementById('lead-inspector-select').value, 'lead')" class="text-xs font-semibold text-rose-600 hover:text-rose-800 flex items-center gap-1">
+              <i class="fa-solid fa-plus text-[10px]"></i> Record Incident
+            </button>
+          </div>
+          <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 text-slate-600 font-semibold uppercase tracking-wider border-b border-slate-200 text-[11px]">
+                <tr>
+                  <th class="py-2.5 px-3">Date</th>
+                  <th class="py-2.5 px-3">Reason / Description</th>
+                  <th class="py-2.5 px-3 text-center">Points</th>
+                  <th class="py-2.5 px-3 text-center">Immediate Escalation</th>
+                  <th class="py-2.5 px-3">Impacted Competencies</th>
+                  <th class="py-2.5 px-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="lead-incidents-table-body" class="divide-y divide-slate-100">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ---------------------------------------- -->
+    <!-- VIEW 3: YEARLY TRENDS & ANALYTICS        -->
+    <!-- ---------------------------------------- -->
+    <div id="view-analytics" class="space-y-6 hidden">
+      
+      <!-- Top Scorecards -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-square-check"></i>
+          </div>
+          <div>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block" id="scorecard-tasks-label">Total Tasks Completed</span>
+            <span class="text-2xl font-extrabold text-slate-900" id="kpi-total-tasks">0</span>
+          </div>
+        </div>
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block" id="scorecard-occs-label">Total Counseling Incidents</span>
+            <span class="text-2xl font-extrabold text-slate-900" id="kpi-total-occs">0</span>
+          </div>
+        </div>
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center space-x-4">
+          <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-clock"></i>
+          </div>
+          <div>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block" id="scorecard-hours-label">Total Production Hours</span>
+            <span class="text-2xl font-extrabold text-slate-900" id="kpi-total-hours">0.0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scope / Entity Selector Card -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div class="flex items-center space-x-3 w-full md:w-auto">
+          <label for="trendline-entity-select" class="text-xs font-bold text-slate-700 uppercase tracking-wider whitespace-nowrap">Analytics Scope:</label>
+          <select id="trendline-entity-select" onchange="renderAnalyticsView()" class="bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg px-3 py-2 font-medium focus:ring-2 focus:ring-indigo-500 w-full md:w-72">
+            <optgroup label="Organizational Averages">
+              <option value="ALL_OPS" selected>All Operators (Average)</option>
+              <option value="ALL_LEADS">All Team Leads (Average)</option>
+            </optgroup>
+            <optgroup label="Individual Operators" id="optgroup-operators-trend">
+              <!-- Dynamically populated -->
+            </optgroup>
+            <optgroup label="Individual Team Leads" id="optgroup-leads-trend">
+              <!-- Dynamically populated -->
+            </optgroup>
+          </select>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button id="btn-generate-ai-brief" onclick="generateExecutiveReport()" class="bg-purple-700 hover:bg-purple-800 text-white font-semibold text-xs px-3.5 py-2 rounded-lg shadow-sm transition flex items-center gap-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Executive Diagnosis
+          </button>
+        </div>
+      </div>
+
+      <!-- AI Executive Brief Display Container -->
+      <div id="ai-brief-container" class="hidden bg-white p-6 rounded-xl border border-purple-200 shadow-sm space-y-3">
+        <div class="flex items-center justify-between pb-3 border-b border-purple-100">
+          <div class="flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-chart-pie"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-slate-900">Executive Operational &amp; Disciplinary Assessment</h3>
+              <p class="text-[11px] text-slate-500">Cross-tier operational review, overdue task risk diagnosis &amp; supervisory recommendations</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="copyExecutiveBrief()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-2.5 py-1.5 rounded transition">
+              <i class="fa-regular fa-copy mr-1"></i> Copy Report
+            </button>
+            <button onclick="openExecutiveInGemini()" class="text-xs bg-purple-600 hover:bg-purple-700 text-white font-semibold px-2.5 py-1.5 rounded transition flex items-center gap-1">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> Open in Gemini
+            </button>
+            <button onclick="document.getElementById('ai-brief-container').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 p-1">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+        <div id="ai-brief-loading" class="hidden py-8 flex flex-col items-center justify-center space-y-2">
+          <i class="fa-solid fa-circle-notch anim-sync text-purple-600 text-2xl"></i>
+          <span class="text-xs font-semibold text-slate-600">Analyzing operational volume, occurrences, and warning distributions...</span>
+        </div>
+        <div id="ai-brief-content" class="text-xs font-mono leading-relaxed text-slate-700 whitespace-pre-wrap bg-slate-50 p-4 rounded-lg border border-slate-200 max-h-96 overflow-y-auto custom-scrollbar"></div>
+      </div>
+
+      <!-- Charts Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Competency Trends Line Chart -->
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm lg:col-span-2 flex flex-col">
+          <div class="flex justify-between items-center mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900" id="trend-line-title">Competency Trajectory Over Time</h3>
+              <p class="text-xs text-slate-500" id="trend-line-subtitle">Historical progression across all 6 core competencies</p>
+            </div>
+            <span class="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-semibold border border-indigo-100">Scale: 1.00 - 5.00</span>
+          </div>
+          <div class="relative flex-1 min-h-[300px]">
+            <canvas id="competencyTimelineChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Hours Logged Bar Chart -->
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+          <div class="flex justify-between items-center mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900" id="hours-bar-title">Hours Logged Distribution</h3>
+              <p class="text-xs text-slate-500" id="hours-bar-subtitle">Total logged production effort</p>
+            </div>
+          </div>
+          <div class="relative flex-1 min-h-[300px]">
+            <canvas id="hoursBarChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ---------------------------------------- -->
+    <!-- VIEW 4: SETTINGS, ROSTER & RUBRIC MATRIX -->
+    <!-- ---------------------------------------- -->
+    <div id="view-settings" class="space-y-6 hidden">
+      
+      <!-- Google Sheets Cloud Sync Configuration Card -->
+      <div class="bg-white p-6 rounded-xl border border-emerald-300 shadow-sm space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Google Sheets Database Connection</h3>
+              <p class="text-xs text-slate-500">Live multi-user backend synchronization with your shared Google Sheet.</p>
+            </div>
+          </div>
+          <span id="settings-cloud-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+            Connected Live
+          </span>
+        </div>
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Google Apps Script Web App URL</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input type="text" id="settings-google-sheet-url" class="flex-1 bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500 font-mono" placeholder="https://script.google.com/macros/s/.../exec">
+              <button onclick="saveCloudUrlFromSettings()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs px-4 py-2 rounded-lg transition flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-floppy-disk"></i> Save &amp; Sync
+              </button>
+              <button onclick="syncWithGoogleSheet()" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs px-3 py-2 rounded-lg transition flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-rotate"></i> Pull Now
+              </button>
+            </div>
+          </div>
+
+          <!-- Automated Background Refresh Interval Control -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between pt-2 border-t border-slate-100 gap-3">
+            <div>
+              <span class="text-xs font-bold text-slate-800 block">Automatic Cloud Refresh Cadence</span>
+              <p class="text-[11px] text-slate-500">Pulls incoming Google Form reviews from team leads into your local dashboard in the background.</p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <label for="settings-sync-interval" class="text-xs font-semibold text-slate-600">Interval:</label>
+              <select id="settings-sync-interval" onchange="changeSyncInterval(this.value)" class="bg-slate-50 border border-slate-300 text-xs rounded-lg px-3 py-1.5 font-medium text-slate-800 focus:ring-2 focus:ring-emerald-500">
+                <option value="1">Every 1 Minute</option>
+                <option value="2">Every 2 Minutes</option>
+                <option value="5" selected>Every 5 Minutes (Default)</option>
+                <option value="10">Every 10 Minutes</option>
+                <option value="0">Manual Only (Off)</option>
+              </select>
+            </div>
+          </div>
+
+          <p class="text-[11px] text-slate-500">
+            Pre-linked to your Google Sheet deployment. All changes made on this screen sync across the organization automatically.
+          </p>
+        </div>
+      </div>
+
+      <!-- Corporate Gemini Workspace Assistant Card -->
+      <div class="bg-white p-6 rounded-xl border border-purple-200 shadow-sm space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center text-xl">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Gemini Corporate Intelligence</h3>
+              <p class="text-xs text-slate-500">Instant HR memos, PIP drafting, incident polish, and direct export to your corporate Gemini account.</p>
+            </div>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800 flex items-center gap-1.5">
+            <i class="fa-solid fa-circle-check text-purple-600"></i> Corporate Workspace Ready
+          </span>
+        </div>
+
+        <div class="p-3.5 bg-purple-50/70 border border-purple-200 rounded-lg text-xs text-purple-900 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div class="space-y-1">
+            <p class="font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-building"></i> Built for teams with Google Workspace / Gemini
+            </p>
+            <p class="text-[11px] text-purple-700 leading-relaxed">
+              No developer keys or Google AI Studio accounts needed. You can generate complete HR documentation right in the app, or click <strong>"Open in Gemini"</strong> to copy the structured prompt directly into your corporate Gemini web chat.
+            </p>
+          </div>
+          <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer" class="bg-purple-700 hover:bg-purple-800 text-white font-medium px-3.5 py-2 rounded-lg text-xs whitespace-nowrap transition flex items-center gap-1.5 shadow-sm">
+            Launch Gemini <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Disciplinary Thresholds Table -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Thresholds Card -->
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider pb-2 border-b border-slate-100">Disciplinary Point Thresholds</h3>
+          <div class="space-y-3 text-xs">
+            <div class="flex justify-between items-center p-2.5 rounded-lg bg-emerald-50 text-emerald-900 font-medium">
+              <span>0 &ndash; 19 Points</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-200 text-emerald-800 font-bold">Good Standing</span>
+            </div>
+            <div class="flex justify-between items-center p-2.5 rounded-lg bg-amber-50 text-amber-900 font-medium">
+              <span>20 &ndash; 39 Points</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-800 font-bold">Oral Warning</span>
+            </div>
+            <div class="flex justify-between items-center p-2.5 rounded-lg bg-orange-50 text-orange-900 font-medium">
+              <span>40 &ndash; 49 Points</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-orange-200 text-orange-800 font-bold">Written Warning</span>
+            </div>
+            <div class="flex justify-between items-center p-2.5 rounded-lg bg-rose-50 text-rose-900 font-medium">
+              <span>50+ Points</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-rose-200 text-rose-800 font-bold">Final Warning</span>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-400">Total Points = Automated Past-Due Action Items (+1 pt each) + Manual Infraction Points.</p>
+        </div>
+
+        <!-- Point Accrual Rubric Card -->
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider pb-2 border-b border-slate-100">Point Accrual Rubric Guidelines</h3>
+          <div class="space-y-2 text-xs">
+            <div class="p-2 border border-slate-100 rounded-lg">
+              <span class="font-bold text-indigo-600 block">1 Point:</span>
+              <span class="text-slate-600">First missed deadline or minor operational lapse.</span>
+            </div>
+            <div class="p-2 border border-slate-100 rounded-lg">
+              <span class="font-bold text-indigo-600 block">2 Points:</span>
+              <span class="text-slate-600">Missed deadline after supervisor reminder or follow-up.</span>
+            </div>
+            <div class="p-2 border border-slate-100 rounded-lg">
+              <span class="font-bold text-indigo-600 block">3 Points:</span>
+              <span class="text-slate-600">Additional missed tasks while previous tasks remain overdue.</span>
+            </div>
+            <div class="p-2 border border-slate-100 rounded-lg">
+              <span class="font-bold text-rose-600 block">4 &ndash; 5 Points:</span>
+              <span class="text-slate-600">Repeated pattern of negligence, disregard for expectations, or failure to act responsibly.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Personnel Roster Management Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Manage Operators Panel -->
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Operator Roster Management</h3>
+              <p class="text-xs text-slate-500">Add, reassign supervisors, or offboard operators</p>
+            </div>
+            <button onclick="promptAddOperator()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-1 shadow-sm">
+              <i class="fa-solid fa-user-plus"></i> Add Operator
+            </button>
+          </div>
+          <div class="overflow-y-auto max-h-80 custom-scrollbar space-y-2 pr-1" id="roster-operators-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Manage Team Leads Panel -->
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Team Leads Management</h3>
+              <p class="text-xs text-slate-500">Supervisory roster for Operator assignments</p>
+            </div>
+            <button onclick="promptAddLead()" class="bg-indigo-900 hover:bg-indigo-800 text-white font-medium text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-1 shadow-sm">
+              <i class="fa-solid fa-user-plus"></i> Add Lead
+            </button>
+          </div>
+          <div class="overflow-y-auto max-h-80 custom-scrollbar space-y-2 pr-1" id="roster-leads-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Data Portability / Reset Controls -->
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider pb-2 border-b border-slate-100">Data Management &amp; Backup</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          The application saves all live data changes to your connected Google Sheet as well as local browser storage. You can also export or import a complete JSON snapshot file.
+        </p>
+        <div class="flex flex-wrap gap-3 pt-2">
+          <button onclick="exportDatabaseJSON()" class="bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs px-4 py-2 rounded-lg transition flex items-center gap-1.5">
+            <i class="fa-solid fa-download"></i> Export JSON Backup
+          </button>
+          <label class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-medium text-xs px-4 py-2 rounded-lg transition cursor-pointer flex items-center gap-1.5">
+            <i class="fa-solid fa-upload"></i> Import JSON Backup
+            <input type="file" id="import-json-file" accept=".json" class="hidden" onchange="importDatabaseJSON(event)">
+          </label>
+          <button onclick="resetToSampleData()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-medium text-xs px-4 py-2 rounded-lg transition flex items-center gap-1.5">
+            <i class="fa-solid fa-rotate-left"></i> Restore Sample Dataset
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- 3. INTERACTIVE MODALS & CRUD FORMS         -->
+  <!-- ========================================== -->
+
+  <!-- Modal: Google Sheets Connection Manager -->
+  <div id="modal-cloud-config" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-cloud"></i>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900">Google Sheet Cloud Synchronization</h3>
+        </div>
+        <button onclick="closeCloudConfigModal()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark text-base"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-600 leading-relaxed">
+        Connect your tracker to a Google Apps Script Web App URL. When configured, all weekly evaluations, occurrence logs, and action items will sync directly with your team's live Google Sheet database.
+      </p>
+
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1">Google Apps Script Web App URL</label>
+          <input type="text" id="modal-google-sheet-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs font-mono text-slate-800 focus:ring-2 focus:ring-emerald-500">
+          <p class="text-[11px] text-slate-400 mt-1">Pre-populated with your team's Axon deployment URL.</p>
+        </div>
+
+        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
+          <div>
+            <span class="text-xs font-bold text-slate-800 block">Auto-Sync Cadence</span>
+            <span class="text-[11px] text-slate-500">Background refresh rate for new Google Form evaluations</span>
+          </div>
+          <select id="modal-sync-interval" class="bg-white border border-slate-300 text-xs rounded-lg px-2.5 py-1.5 font-medium text-slate-800">
+            <option value="1">1 Minute</option>
+            <option value="2">2 Minutes</option>
+            <option value="5" selected>5 Minutes (Recommended)</option>
+            <option value="10">10 Minutes</option>
+            <option value="0">Off (Manual)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+        <button type="button" onclick="disconnectCloudSync()" class="text-rose-600 hover:text-rose-800 text-xs font-semibold">
+          Disconnect (Local Only)
+        </button>
+        <div class="flex space-x-2">
+          <button type="button" onclick="closeCloudConfigModal()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700">Cancel</button>
+          <button type="button" onclick="saveCloudUrlFromModal()" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex items-center gap-1.5">
+            <i class="fa-solid fa-floppy-disk"></i> Save &amp; Sync
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: AI HR Counseling Memo & PIP Generator -->
+  <div id="ai-memo-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 bg-purple-900 text-white flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-lg bg-purple-800 flex items-center justify-center text-purple-200">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold tracking-tight">AI HR Counseling Memo &amp; PIP Generator</h3>
+            <p class="text-[11px] text-purple-200" id="ai-memo-target-subtitle">Targeting Employee Performance Record</p>
+          </div>
+        </div>
+        <button onclick="closeAIMemoModal()" class="text-purple-300 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 overflow-y-auto custom-scrollbar flex-1">
+        <!-- Configuration Controls -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Document Type</label>
+            <select id="ai-memo-doc-type" onchange="generateAIMemo()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-medium focus:ring-2 focus:ring-purple-500">
+              <option value="formal_warning">Formal Disciplinary Notice (Warning)</option>
+              <option value="pip_plan">30-Day Performance Improvement Plan (PIP)</option>
+              <option value="coaching_1on1">Supervisory 1-on-1 Coaching Talking Points</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Tone &amp; Approach</label>
+            <select id="ai-memo-tone" onchange="generateAIMemo()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-medium focus:ring-2 focus:ring-purple-500">
+              <option value="firm_compliance">Firm HR Compliance &amp; Policy Direct</option>
+              <option value="supportive_coaching">Supportive &amp; Growth Coaching</option>
+              <option value="direct_urgent">Direct &amp; Urgent (Final Warning Severity)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Output display container -->
+        <div class="relative">
+          <div id="ai-memo-loading" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center space-y-2 z-10 rounded-xl">
+            <i class="fa-solid fa-circle-notch anim-sync text-purple-600 text-2xl"></i>
+            <span class="text-xs font-semibold text-slate-700">Synthesizing competencies, incidents, and drafting memo...</span>
+          </div>
+          <textarea id="ai-memo-output" rows="13" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-4 text-xs font-mono leading-relaxed text-slate-800 focus:ring-2 focus:ring-purple-500 custom-scrollbar" placeholder="Generating formal documentation tailored to this employee's active status..."></textarea>
+        </div>
+
+        <!-- Corporate Gemini Notice Helper -->
+        <div class="bg-purple-50/70 border border-purple-200 rounded-lg p-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px]">
+          <div class="text-purple-900 flex items-center gap-2">
+            <i class="fa-solid fa-lightbulb text-purple-600 text-sm"></i>
+            <span><strong>Want to refine this in your corporate Gemini account?</strong> Click below to copy the prompt and launch Gemini.</span>
+          </div>
+          <button onclick="openMemoInGemini()" class="bg-purple-700 hover:bg-purple-800 text-white font-semibold px-3 py-1.5 rounded-lg text-xs whitespace-nowrap transition flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Open in Gemini
+          </button>
+        </div>
+      </div>
+
+      <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button type="button" onclick="closeAIMemoModal()" class="px-4 py-2 rounded-lg text-xs font-semibold bg-slate-200 hover:bg-slate-300 text-slate-700">
+          Close
+        </button>
+        <div class="flex items-center space-x-2">
+          <button type="button" id="btn-run-ai-memo" onclick="generateAIMemo()" class="px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-rotate"></i> Re-Draft
+          </button>
+          <button type="button" onclick="copyMemoToClipboard()" class="px-4 py-2 rounded-lg text-xs font-semibold bg-purple-700 hover:bg-purple-800 text-white shadow-sm flex items-center gap-1.5 transition">
+            <i class="fa-regular fa-copy"></i> Copy Memo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: AI SMART Action Plan Suggestions -->
+  <div id="ai-remed-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 bg-emerald-900 text-white flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-800 flex items-center justify-center text-emerald-200">
+            <i class="fa-solid fa-lightbulb"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold tracking-tight">AI SMART Remediation Plan Generator</h3>
+            <p class="text-[11px] text-emerald-200" id="ai-remed-subtitle">Targeting Core Deficit Competencies</p>
+          </div>
+        </div>
+        <button onclick="closeAIRemediationModal()" class="text-emerald-300 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 overflow-y-auto custom-scrollbar flex-1">
+        <p class="text-xs text-slate-600 leading-relaxed">
+          The engine analyzes this individual's lowest-scoring competencies, recent counseling incidents, and current disciplinary standing to formulate concrete, time-bound deliverables.
+        </p>
+
+        <div id="ai-remed-loading" class="hidden py-8 flex flex-col items-center justify-center space-y-2">
+          <i class="fa-solid fa-circle-notch anim-sync text-emerald-600 text-2xl"></i>
+          <span class="text-xs font-semibold text-slate-600">Formulating SMART milestones...</span>
+        </div>
+
+        <div id="ai-remed-results" class="space-y-3">
+          <!-- Dynamically populated SMART cards -->
+        </div>
+      </div>
+
+      <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+        <button type="button" onclick="closeAIRemediationModal()" class="px-4 py-2 rounded-lg text-xs font-semibold bg-slate-200 hover:bg-slate-300 text-slate-700">
+          Close
+        </button>
+        <button type="button" id="btn-run-ai-remed" onclick="generateAIRemediation()" class="px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-rotate"></i> Regenerate Recommendations
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Log Weekly Evaluation -->
+  <div id="modal-evaluation" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto custom-scrollbar space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-clipboard-check"></i>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900">Log Weekly Performance Evaluation</h3>
+        </div>
+        <button onclick="closeEvaluationModal()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark text-base"></i>
+        </button>
+      </div>
+
+      <form id="form-evaluation" onsubmit="submitEvaluation(event)" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="font-bold text-slate-700 uppercase tracking-wider block mb-1">Evaluation Tier</label>
+            <select id="eval-tier-select" onchange="updateEvaluationTierUI()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-medium">
+              <option value="operator">Operator (Tier 1)</option>
+              <option value="lead">Team Lead (Tier 2)</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 uppercase tracking-wider block mb-1">Target Personnel</label>
+            <select id="eval-name-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-medium" required>
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="font-bold text-slate-700 uppercase tracking-wider block mb-1">Evaluation Date</label>
+            <input type="date" id="eval-date" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-medium" required>
+          </div>
+          <div id="eval-lead-wrapper">
+            <label class="font-bold text-slate-700 uppercase tracking-wider block mb-1">Assigned Lead / Supervisor</label>
+            <select id="eval-lead-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-medium">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Competencies Inputs (1.0 to 5.0) -->
+        <div class="pt-2 border-t border-slate-100">
+          <h4 class="font-bold text-slate-800 uppercase tracking-wider mb-2" id="eval-comp-header">Competency Ratings (Scale: 1.0 - 5.0)</h4>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div>
+              <label id="lbl-c1" class="font-medium text-slate-600 block mb-1">Quality of Work</label>
+              <input type="number" step="0.1" min="1.0" max="5.0" id="eval-c1" value="4.0" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-mono font-semibold" required>
+            </div>
+            <div>
+              <label id="lbl-c2" class="font-medium text-slate-600 block mb-1">Efficiency</label>
+              <input type="number" step="0.1" min="1.0" max="5.0" id="eval-c2" value="4.0" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-mono font-semibold" required>
+            </div>
+            <div>
+              <label id="lbl-c3" class="font-medium text-slate-600 block mb-1">Teamwork</label>
+              <input type="number" step="0.1" min="1.0" max="5.0" id="eval-c3" value="4.0" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-mono font-semibold" required>
+            </div>
+            <div>
+              <label id="lbl-c4" class="font-medium text-slate-600 block mb-1">Communication</label>
+              <input type="number" step="0.1" min="1.0" max="5.0" id="eval-c4" value="4.0" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-mono font-semibold" required>
+            </div>
+            <div>
+              <label id="lbl-c5" class="font-medium text-slate-600 block mb-1">Problem Solving</label>
+              <input type="number" step="0.1" min="1.0" max="5.0" id="eval-c5" value="4.0" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-mono font-semibold" required>
+            </div>
+            <div>
+              <label id="lbl-c6" class="font-medium text-slate-600 block mb-1">Strategic Thinking</label>
+              <input type="number" step="0.1" min="1.0" max="5.0" id="eval-c6" value="4.0" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-mono font-semibold" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Operational Volume Metrics -->
+        <div class="pt-2 border-t border-slate-100">
+          <h4 class="font-bold text-slate-800 uppercase tracking-wider mb-2">Production &amp; Effort Metrics</h4>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="font-medium text-slate-600 block mb-1">Tasks Completed</label>
+              <input type="number" min="0" id="eval-tasks" value="25" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-mono" required>
+            </div>
+            <div>
+              <label class="font-medium text-slate-600 block mb-1">Counseling Occs</label>
+              <input type="number" min="0" id="eval-occs" value="0" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-mono" required>
+            </div>
+            <div>
+              <label class="font-medium text-slate-600 block mb-1">Hours Logged</label>
+              <input type="number" step="0.5" min="0" id="eval-hours" value="40" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-mono" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end space-x-2 pt-4 border-t border-slate-100">
+          <button type="button" onclick="closeEvaluationModal()" class="px-4 py-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex items-center gap-1.5">
+            <i class="fa-solid fa-floppy-disk"></i> Save Evaluation
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Record Counseling Incident (Infraction) -->
+  <div id="modal-occurrence" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto custom-scrollbar space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900">Record Counseling Incident &amp; Infraction</h3>
+        </div>
+        <button onclick="closeOccurrenceModal()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark text-base"></i>
+        </button>
+      </div>
+
+      <form id="form-occurrence" onsubmit="submitOccurrence(event)" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="font-bold text-slate-700 uppercase tracking-wider block mb-1">Subject Tier</label>
+            <select id="occ-tier-select" onchange="updateOccurrenceTierUI()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-medium">
+              <option value="operator">Operator (Tier 1)</option>
+              <option value="lead">Team Lead (Tier 2)</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 uppercase tracking-wider block mb-1">Subject Name</label>
+            <select id="occ-name-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-medium" required>
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="font-bold text-slate-700 uppercase tracking-wider block mb-1">Incident Date</label>
+            <input type="date" id="occ-date" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-medium" required>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 uppercase tracking-wider block mb-1">Points Accrued (1-5)</label>
+            <select id="occ-points" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-medium font-mono" required>
+              <option value="1">1 Point (First missed deadline / minor lapse)</option>
+              <option value="2">2 Points (Missed after follow-up reminder)</option>
+              <option value="3">3 Points (Multiple overdue tasks active)</option>
+              <option value="4">4 Points (Pattern of negligence / insubordination)</option>
+              <option value="5">5 Points (Severe policy or compliance breach)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="font-bold text-slate-700 uppercase tracking-wider">Infraction Details &amp; Rationale</label>
+            <button type="button" id="btn-polish-incident" onclick="polishIncidentNotes()" class="text-[11px] text-purple-700 hover:text-purple-900 font-bold flex items-center gap-1">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> AI Polish &amp; Classify
+            </button>
+          </div>
+          <textarea id="occ-reason" rows="3" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-xs font-medium focus:ring-2 focus:ring-rose-500" placeholder="Describe the missed deadline, conduct issue, or non-compliance occurrence..." required></textarea>
+          <div id="occ-ai-hint-box" class="hidden mt-1.5 p-2 bg-purple-50 border border-purple-200 rounded text-[11px] text-purple-900 font-medium">
+            <span id="occ-ai-hint-text"></span>
+          </div>
+        </div>
+
+        <!-- Competency Impact Checkboxes -->
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+          <label class="font-bold text-slate-700 uppercase tracking-wider block">Impacted Competencies</label>
+          <p class="text-[11px] text-slate-500">Checking a competency subtracts points directly from that rating unless marked as Immediate Escalation.</p>
+          <div class="grid grid-cols-2 gap-2 pt-1" id="occ-impact-container">
+            <!-- Dynamically populated via updateOccurrenceTierUI -->
+          </div>
+        </div>
+
+        <!-- Immediate Escalation Toggle -->
+        <div class="flex items-center justify-between p-3 bg-amber-50 rounded-xl border border-amber-200">
+          <div>
+            <label for="occ-escalation" class="font-bold text-amber-900 block cursor-pointer">Immediate Escalation</label>
+            <span class="text-[11px] text-amber-700">Flag as an immediate warning. Escalated points accrue to total discipline but do not deduct from net competency ratings.</span>
+          </div>
+          <input type="checkbox" id="occ-escalation" class="w-4 h-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500">
+        </div>
+
+        <div class="flex justify-end space-x-2 pt-4 border-t border-slate-100">
+          <button type="button" onclick="closeOccurrenceModal()" class="px-4 py-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-lg text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white shadow-sm flex items-center gap-1.5">
+            <i class="fa-solid fa-triangle-exclamation"></i> Record Infraction
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add Corrective Action Item -->
+  <div id="modal-action" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-list-check"></i>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900">Assign Corrective Action Item</h3>
+        </div>
+        <button onclick="closeActionModal()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark text-base"></i>
+        </button>
+      </div>
+
+      <form id="form-action" onsubmit="submitActionItem(event)" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="font-bold text-slate-700 uppercase tracking-wider block mb-1">Personnel Tier</label>
+            <select id="action-tier-select" onchange="updateActionTierUI()" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-medium">
+              <option value="operator">Operator (Tier 1)</option>
+              <option value="lead">Team Lead (Tier 2)</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 uppercase tracking-wider block mb-1">Target Personnel</label>
+            <select id="action-name-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-medium" required>
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 uppercase tracking-wider block mb-1">Task Deliverable &amp; Description</label>
+          <input type="text" id="action-task" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 font-medium" placeholder="e.g. Complete Quality Calibration Checklist on Module 4" required>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 uppercase tracking-wider block mb-1">Due Date</label>
+            <input type="date" id="action-due" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-medium" required>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 uppercase tracking-wider block mb-1">Priority</label>
+            <select id="action-priority" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-medium">
+              <option value="High">High</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 uppercase tracking-wider block mb-1">Status</label>
+            <select id="action-status" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 font-medium">
+              <option value="Open" selected>Open</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Complete">Complete</option>
+            </select>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-slate-500 pt-1">
+          <strong>Rule:</strong> Any action item where Status is not "Complete" past its Due Date triggers +1 Automated Disciplinary Point dynamically.
+        </p>
+
+        <div class="flex justify-end space-x-2 pt-4 border-t border-slate-100">
+          <button type="button" onclick="closeActionModal()" class="px-4 py-2 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-sm flex items-center gap-1.5">
+            <i class="fa-solid fa-plus"></i> Assign Task
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Non-blocking Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+  <!-- ========================================== -->
+  <!-- 4. CORE JAVASCRIPT & APPLICATION STATE     -->
+  <!-- ========================================== -->
+  <script>
+    // ==========================================
+    // 2.1 DATA MODELS & DOMAIN SPECIFICATIONS
+    // ==========================================
+    const OPERATOR_COMPETENCIES = [
+      { key: "quality_of_work", label: "Quality of Work" },
+      { key: "efficiency", label: "Efficiency" },
+      { key: "teamwork", label: "Teamwork" },
+      { key: "communication", label: "Communication" },
+      { key: "problem_solving", label: "Problem Solving" },
+      { key: "strategic_thinking", label: "Strategic Thinking" }
+    ];
+
+    const LEAD_COMPETENCIES = [
+      { key: "strategic_vision", label: "Strategic Vision" },
+      { key: "team_development", label: "Team Development" },
+      { key: "execution", label: "Execution" },
+      { key: "stakeholder_management", label: "Stakeholder Management" },
+      { key: "innovation", label: "Innovation" },
+      { key: "integrity", label: "Integrity" }
+    ];
+
+    // Pre-linked Axon Google Sheet Web App Deployment URL
+    const DEFAULT_GOOGLE_SHEET_URL = "https://script.google.com/a/macros/axon.com/s/AKfycbzQbhqFT87hJjsXJIJQFudsOgnlRk1E6Caj7nBye_0Bsji-L-cbWNKoBGoJ64dU5fBv/exec";
+
+    const DEFAULT_DATA = {
+      settings: {
+        google_sheet_url: DEFAULT_GOOGLE_SHEET_URL,
+        auto_sync_interval_mins: 5,
+        point_thresholds: { oral: 20, written: 40, final: 50 }
+      },
+      employees: [
+        { name: "John Doe", lead: "Jane Smith", active: true },
+        { name: "Alex Rivera", lead: "Jane Smith", active: true },
+        { name: "Sam Wilson", lead: "Marcus Vance", active: true },
+        { name: "Taylor Green", lead: "Marcus Vance", active: true },
+        { name: "Morgan Vance", lead: "Elena Rostova", active: true }
+      ],
+      leads: [
+        { name: "Jane Smith", active: true },
+        { name: "Marcus Vance", active: true },
+        { name: "Elena Rostova", active: true }
+      ],
+      weekly_logs: [
+        { id: "log-1", date: "2026-08-07", employee_name: "John Doe", lead_name: "Jane Smith", quality_of_work: 4.2, efficiency: 3.8, teamwork: 4.5, communication: 4.0, problem_solving: 3.9, strategic_thinking: 3.5, tasks_completed: 28, occurrences: 0, hours_logged: 40 },
+        { id: "log-2", date: "2026-08-14", employee_name: "John Doe", lead_name: "Jane Smith", quality_of_work: 4.0, efficiency: 3.5, teamwork: 4.2, communication: 3.8, problem_solving: 3.7, strategic_thinking: 3.2, tasks_completed: 24, occurrences: 1, hours_logged: 38 },
+        { id: "log-3", date: "2026-08-21", employee_name: "John Doe", lead_name: "Jane Smith", quality_of_work: 3.6, efficiency: 3.0, teamwork: 4.0, communication: 3.5, problem_solving: 3.4, strategic_thinking: 3.0, tasks_completed: 20, occurrences: 2, hours_logged: 39 },
+        { id: "log-4", date: "2026-08-14", employee_name: "Alex Rivera", lead_name: "Jane Smith", quality_of_work: 4.8, efficiency: 4.6, teamwork: 4.7, communication: 4.5, problem_solving: 4.6, strategic_thinking: 4.3, tasks_completed: 35, occurrences: 0, hours_logged: 40 },
+        { id: "log-5", date: "2026-08-21", employee_name: "Alex Rivera", lead_name: "Jane Smith", quality_of_work: 4.9, efficiency: 4.7, teamwork: 4.8, communication: 4.6, problem_solving: 4.8, strategic_thinking: 4.4, tasks_completed: 38, occurrences: 0, hours_logged: 42 },
+        { id: "log-6", date: "2026-08-14", employee_name: "Sam Wilson", lead_name: "Marcus Vance", quality_of_work: 3.4, efficiency: 3.2, teamwork: 3.5, communication: 3.0, problem_solving: 3.1, strategic_thinking: 2.8, tasks_completed: 18, occurrences: 1, hours_logged: 36 },
+        { id: "log-7", date: "2026-08-21", employee_name: "Sam Wilson", lead_name: "Marcus Vance", quality_of_work: 3.0, efficiency: 2.8, teamwork: 3.2, communication: 2.9, problem_solving: 3.0, strategic_thinking: 2.5, tasks_completed: 15, occurrences: 3, hours_logged: 34 }
+      ],
+      lead_weekly_logs: [
+        { id: "lead-log-1", date: "2026-08-07", lead_name: "Jane Smith", strategic_vision: 4.5, team_development: 4.2, execution: 4.6, stakeholder_management: 4.3, innovation: 4.0, integrity: 4.9, tasks_completed: 42, occurrences: 0, hours_logged: 45 },
+        { id: "lead-log-2", date: "2026-08-21", lead_name: "Jane Smith", strategic_vision: 4.6, team_development: 4.4, execution: 4.7, stakeholder_management: 4.5, innovation: 4.2, integrity: 5.0, tasks_completed: 46, occurrences: 0, hours_logged: 44 },
+        { id: "lead-log-3", date: "2026-08-14", lead_name: "Marcus Vance", strategic_vision: 3.8, team_development: 3.5, execution: 3.9, stakeholder_management: 3.6, innovation: 3.4, integrity: 4.5, tasks_completed: 30, occurrences: 1, hours_logged: 40 },
+        { id: "lead-log-4", date: "2026-08-14", lead_name: "Elena Rostova", strategic_vision: 4.7, team_development: 4.8, execution: 4.8, stakeholder_management: 4.6, innovation: 4.5, integrity: 5.0, tasks_completed: 50, occurrences: 0, hours_logged: 45 }
+      ],
+      manual_occurrences: [
+        {
+          id: "occ-1",
+          entity_name: "John Doe",
+          date: "2026-08-12",
+          reason: "Missed sprint ticket deliverables and failed to attend calibration standup without notice.",
+          points: 2,
+          impacts_c1: true,
+          impacts_c2: true,
+          impacts_c3: false,
+          impacts_c4: true,
+          impacts_c5: false,
+          impacts_c6: false,
+          immediate_escalation: false
+        },
+        {
+          id: "occ-2",
+          entity_name: "Sam Wilson",
+          date: "2026-08-18",
+          reason: "Repeated non-compliance with work order intake protocol following initial oral warning.",
+          points: 4,
+          impacts_c1: true,
+          impacts_c2: true,
+          impacts_c3: false,
+          impacts_c4: false,
+          impacts_c5: true,
+          impacts_c6: false,
+          immediate_escalation: false
+        },
+        {
+          id: "occ-3",
+          entity_name: "Sam Wilson",
+          date: "2026-08-20",
+          reason: "Gross safety violation on testing floor. Immediate escalation flag triggered.",
+          points: 25,
+          impacts_c1: true,
+          impacts_c2: false,
+          impacts_c3: false,
+          impacts_c4: false,
+          impacts_c5: false,
+          impacts_c6: false,
+          immediate_escalation: true
+        }
+      ],
+      lead_manual_occurrences: [
+        {
+          id: "lead-occ-1",
+          entity_name: "Marcus Vance",
+          date: "2026-08-15",
+          reason: "Missed departmental headcount forecast deadline after reminder.",
+          points: 2,
+          impacts_c1: false,
+          impacts_c2: false,
+          impacts_c3: true,
+          impacts_c4: true,
+          impacts_c5: false,
+          impacts_c6: false,
+          immediate_escalation: false
+        }
+      ],
+      action_items: [
+        { id: "act-1", entity_name: "John Doe", task_name: "Complete Quality of Work SOP Review & Audit", status: "Open", due_date: "2026-08-10", priority: "High" },
+        { id: "act-2", entity_name: "John Doe", task_name: "Attend weekly 1-on-1 velocity coaching with Jane Smith", status: "In Progress", due_date: "2026-09-01", priority: "Medium" },
+        { id: "act-3", entity_name: "Sam Wilson", task_name: "Safety protocol re-certification module", status: "Open", due_date: "2026-08-15", priority: "High" },
+        { id: "act-4", entity_name: "Sam Wilson", task_name: "Submit daily ticket status checklist to supervisor", status: "Open", due_date: "2026-08-19", priority: "High" },
+        { id: "act-5", entity_name: "Alex Rivera", task_name: "Draft mentorship onboarding guide for junior operators", status: "Complete", due_date: "2026-08-10", priority: "Medium" }
+      ],
+      lead_action_items: [
+        { id: "lead-act-1", entity_name: "Marcus Vance", task_name: "Deliver updated resource allocation grid to operations lead", status: "Open", due_date: "2026-08-12", priority: "High" }
+      ]
+    };
+
+    // Global in-memory state & auto-sync variables
+    let appState = null;
+    let currentAIRemedTarget = { name: null, type: null };
+    let opRadarChartInstance = null;
+    let leadRadarChartInstance = null;
+    let competencyTimelineChartInstance = null;
+    let hoursBarChartInstance = null;
+    let lastGeneratedPrompt = "";
+    let lastGeneratedExecutivePrompt = "";
+
+    // Auto-refresh interval timers
+    let autoSyncTimerId = null;
+    let countdownIntervalId = null;
+    let secondsUntilNextSync = 300; // 5 minutes default
+
+    // ==========================================
+    // 2.2 STATE MANAGEMENT & PERSISTENCE
+    // ==========================================
+    function initAppState() {
+      const saved = localStorage.getItem("trial_counseling_tracker_db");
+      if (saved) {
+        try {
+          appState = JSON.parse(saved);
+        } catch (e) {
+          console.warn("Could not parse saved state. Re-initializing default.", e);
+          appState = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        }
+      } else {
+        appState = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      }
+
+      if (!appState.settings) appState.settings = {};
+      if (!appState.settings.google_sheet_url) {
+        appState.settings.google_sheet_url = DEFAULT_GOOGLE_SHEET_URL;
+      }
+      if (appState.settings.auto_sync_interval_mins === undefined) {
+        appState.settings.auto_sync_interval_mins = 5;
+      }
+      if (!appState.settings.point_thresholds) {
+        appState.settings.point_thresholds = { oral: 20, written: 40, final: 50 };
+      }
+
+      startAutoSyncScheduler();
+
+      if (appState.settings.google_sheet_url) {
+        syncWithGoogleSheet(true);
+      }
+    }
+
+    function commitStateChanges(syncCloud) {
+      if (syncCloud === undefined) syncCloud = true;
+      localStorage.setItem("trial_counseling_tracker_db", JSON.stringify(appState));
+      if (syncCloud && appState.settings && appState.settings.google_sheet_url) {
+        pushStateToGoogleSheet();
+      }
+    }
+
+    // ==========================================
+    // 2.3 AUTOMATED 5-MINUTE REFRESH ENGINE
+    // ==========================================
+    function startAutoSyncScheduler() {
+      if (autoSyncTimerId) clearInterval(autoSyncTimerId);
+      if (countdownIntervalId) clearInterval(countdownIntervalId);
+
+      const mins = parseInt(appState && appState.settings ? appState.settings.auto_sync_interval_mins : 5);
+      const timerBadge = document.getElementById("auto-sync-timer-badge");
+
+      if (mins <= 0) {
+        if (timerBadge) timerBadge.innerText = "Manual";
+        return;
+      }
+
+      secondsUntilNextSync = mins * 60;
+      updateCountdownBadge();
+
+      countdownIntervalId = setInterval(() => {
+        secondsUntilNextSync--;
+        if (secondsUntilNextSync <= 0) {
+          secondsUntilNextSync = mins * 60;
+          syncWithGoogleSheet(true);
+        }
+        updateCountdownBadge();
+      }, 1000);
+    }
+
+    function updateCountdownBadge() {
+      const timerBadge = document.getElementById("auto-sync-timer-badge");
+      if (!timerBadge) return;
+
+      const mins = Math.floor(secondsUntilNextSync / 60);
+      const secs = secondsUntilNextSync % 60;
+      const formattedSecs = secs < 10 ? ("0" + secs) : secs;
+      timerBadge.innerText = mins + ":" + formattedSecs;
+    }
+
+    function changeSyncInterval(newMins) {
+      if (!appState.settings) appState.settings = {};
+      appState.settings.auto_sync_interval_mins = parseInt(newMins);
+      commitStateChanges(false);
+      startAutoSyncScheduler();
+      updateCloudInputs();
+      showAppToast("Auto-sync set to " + (newMins === '0' ? 'Manual Only' : 'every ' + newMins + ' min'), "info");
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && appState && appState.settings && appState.settings.google_sheet_url) {
+        syncWithGoogleSheet(true);
+      }
+    });
+
+    // ==========================================
+    // 2.4 GOOGLE APPS SCRIPT BACKEND SYNC
+    // ==========================================
+    async function syncWithGoogleSheet(silent) {
+      if (silent === undefined) silent = false;
+      const url = appState && appState.settings ? appState.settings.google_sheet_url : "";
+      if (!url) {
+        updateCloudStatusUI("local", "Local Storage");
+        return;
+      }
+
+      const spinner = document.getElementById("cloud-sync-spinner");
+      if (spinner) spinner.classList.remove("hidden");
+      updateCloudStatusUI("syncing", "Updating...");
+
+      try {
+        const resp = await fetch(url, { method: "GET" });
+        if (!resp.ok) throw new Error("HTTP error " + resp.status);
+        const result = await resp.json();
+
+        if (result && result.status === "success" && result.data) {
+          appState = result.data;
+          commitStateChanges(false);
+          renderAll();
+          updateCloudStatusUI("online", "Google Sheet Live");
+          if (!silent) showAppToast("Database refreshed from Google Sheet!", "success");
+        } else {
+          pushStateToGoogleSheet(true);
+        }
+      } catch (err) {
+        console.warn("Could not pull from Google Sheet. Operating in local mode.", err);
+        updateCloudStatusUI("error", "Sheet Offline (Local Active)");
+        if (!silent) showAppToast("Could not contact Google Sheet. Local changes preserved.", "warning");
+      } finally {
+        if (spinner) spinner.classList.add("hidden");
+        const mins = parseInt(appState && appState.settings ? appState.settings.auto_sync_interval_mins : 5);
+        if (mins > 0) secondsUntilNextSync = mins * 60;
+      }
+    }
+
+    async function pushStateToGoogleSheet(silent) {
+      if (silent === undefined) silent = false;
+      const url = appState && appState.settings ? appState.settings.google_sheet_url : "";
+      if (!url) return;
+
+      const spinner = document.getElementById("cloud-sync-spinner");
+      if (spinner) spinner.classList.remove("hidden");
+
+      try {
+        await fetch(url, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(appState)
+        });
+        updateCloudStatusUI("online", "Google Sheet Live");
+        if (!silent) showAppToast("Changes saved & synced to Google Sheet!", "success");
+      } catch (err) {
+        console.warn("Push to Google Sheet encountered an issue:", err);
+        updateCloudStatusUI("error", "Sheet Sync Pending");
+      } finally {
+        if (spinner) spinner.classList.add("hidden");
+      }
+    }
+
+    function updateCloudStatusUI(status, labelText) {
+      const dot = document.getElementById("cloud-status-dot");
+      const label = document.getElementById("cloud-status-text");
+      const settingsBadge = document.getElementById("settings-cloud-badge");
+
+      if (label) label.innerText = labelText;
+      if (dot) {
+        if (status === "online") {
+          dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 anim-pulse";
+        } else if (status === "syncing") {
+          dot.className = "w-2.5 h-2.5 rounded-full bg-indigo-400 anim-sync";
+        } else if (status === "local") {
+          dot.className = "w-2.5 h-2.5 rounded-full bg-slate-400";
+        } else {
+          dot.className = "w-2.5 h-2.5 rounded-full bg-amber-400";
+        }
+      }
+
+      if (settingsBadge) {
+        if (status === "online") {
+          settingsBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800";
+          settingsBadge.innerText = "Connected Live";
+        } else {
+          settingsBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800";
+          settingsBadge.innerText = "Local Storage / Offline";
+        }
+      }
+    }
+
+    // ==========================================
+    // 2.5 BUSINESS LOGIC & CALCULATION ENGINE
+    // ==========================================
+    function computeEntityState(name, type) {
+      if (type === undefined) type = 'operator';
+      const isOp = (type === 'operator');
+      const comps = isOp ? OPERATOR_COMPETENCIES : LEAD_COMPETENCIES;
+      const logs = (isOp ? appState.weekly_logs : appState.lead_weekly_logs).filter(l => (isOp ? l.employee_name : l.lead_name) === name);
+      const occs = (isOp ? appState.manual_occurrences : appState.lead_manual_occurrences).filter(o => o.entity_name === name);
+      const actions = (isOp ? appState.action_items : appState.lead_action_items).filter(a => a.entity_name === name);
+
+      const baseScores = {};
+      const deductions = {};
+      const netScores = {};
+
+      comps.forEach((comp, idx) => {
+        const cKey = comp.key;
+        if (logs.length === 0) {
+          baseScores[cKey] = 5.0;
+        } else {
+          const sum = logs.reduce((acc, curr) => acc + (parseFloat(curr[cKey]) || 0), 0);
+          baseScores[cKey] = sum / logs.length;
+        }
+
+        const impactField = "impacts_c" + (idx + 1);
+        const compDeduction = occs.reduce((acc, curr) => {
+          if (curr[impactField] && !curr.immediate_escalation) {
+            return acc + (parseInt(curr.points) || 0);
+          }
+          return acc;
+        }, 0);
+
+        deductions[cKey] = compDeduction;
+        netScores[cKey] = Math.max(0, baseScores[cKey] - compDeduction);
+      });
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      const overdueActions = actions.filter(a => {
+        const isCompleted = ((a.status || '').toLowerCase() === 'complete' || (a.status || '').toLowerCase() === 'completed');
+        const isPastDue = (a.due_date && a.due_date < todayStr);
+        return (!isCompleted && isPastDue);
+      });
+      const automatedPoints = overdueActions.length;
+
+      const manualPoints = occs.reduce((acc, curr) => acc + (parseInt(curr.points) || 0), 0);
+      const totalPoints = automatedPoints + manualPoints;
+
+      const thresholds = appState.settings.point_thresholds || { oral: 20, written: 40, final: 50 };
+      let status = "Good Standing";
+      let statusColor = "emerald";
+
+      if (totalPoints >= thresholds.final) {
+        status = "Final Warning";
+        statusColor = "rose";
+      } else if (totalPoints >= thresholds.written) {
+        status = "Written Warning";
+        statusColor = "orange";
+      } else if (totalPoints >= thresholds.oral) {
+        status = "Oral Warning";
+        statusColor = "amber";
+      }
+
+      return {
+        name: name,
+        type: type,
+        baseScores: baseScores,
+        deductions: deductions,
+        netScores: netScores,
+        automatedPoints: automatedPoints,
+        manualPoints: manualPoints,
+        totalPoints: totalPoints,
+        status: status,
+        statusColor: statusColor,
+        logs: logs,
+        occs: occs,
+        actions: actions
+      };
+    }
+
+    // ==========================================
+    // 2.6 DETERMINISTIC HR DOCUMENTATION ENGINE
+    // ==========================================
+    function generateLocalFallbackMemo(name, type, state, docType, tone) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const compEntries = Object.entries(state.netScores).map(([k, v]) => ({
+        label: k.replace(/_/g, ' ').toUpperCase(),
+        net: v,
+        base: state.baseScores[k],
+        deduction: state.deductions[k]
+      }));
+      compEntries.sort((a, b) => a.net - b.net);
+      const lowestComps = compEntries.slice(0, 3);
+
+      const titleMap = {
+        formal_warning: "OFFICIAL DISCIPLINARY NOTICE: " + state.status.toUpperCase(),
+        pip_plan: "30-DAY PERFORMANCE IMPROVEMENT PLAN (PIP)",
+        coaching_1on1: "SUPERVISORY COACHING & 1-ON-1 COUNSELING RECORD"
+      };
+
+      const toneIntroMap = {
+        firm_compliance: "This documentation serves as an official operational record regarding organizational compliance, deliverable accountability, and adherence to company performance standards.",
+        supportive_coaching: "This document is designed as a constructive developmental roadmap to support your operational success, eliminate performance bottlenecks, and assist you in returning your standing to full compliance.",
+        direct_urgent: "This notice addresses critical, sustained operational deficits that require immediate, measurable corrective intervention to prevent further progressive discipline."
+      };
+
+      const roleLabel = (type === 'operator') ? 'Operator / Individual Contributor' : 'Team Lead / Supervisory';
+
+      return [
+        "================================================================================",
+        titleMap[docType] || titleMap.formal_warning,
+        "================================================================================",
+        "DATE: " + todayStr,
+        "SUBJECT / EMPLOYEE: " + name + " (" + roleLabel + ")",
+        "CURRENT DISCIPLINARY STATUS: " + state.status.toUpperCase(),
+        "TOTAL ACCUMULATED POINTS: " + state.totalPoints + " pts",
+        "  - Automated Overdue Penalties: " + state.automatedPoints + " pts (+1 pt per past-due deliverable)",
+        "  - Logged Counseling Incidents: " + state.manualPoints + " pts",
+        "================================================================================",
+        "",
+        "1. PURPOSE & OPERATIONAL CONTEXT:",
+        toneIntroMap[tone] || toneIntroMap.firm_compliance,
+        "Under organizational guidelines, disciplinary points accrue from overdue action items and logged manual counseling occurrences. Your current balance places you in the \"" + state.status + "\" tier.",
+        "",
+        "2. CORE COMPETENCY DEFICITS & RATING ANALYSIS:",
+        "Your current rolling evaluations highlight key operational gaps in the following core competencies:",
+        lowestComps.map(c => "  * " + c.label + ": Net Rating " + c.net.toFixed(2) + " / 5.00 (Base Evaluation: " + c.base.toFixed(2) + ", Deduction: -" + c.deduction + " pts)").join("\n"),
+        "",
+        "3. RECENT COUNSELING INCIDENTS & INFRACTIONS:",
+        state.occs.length === 0 ? "  * No manual occurrences logged in the current window." : state.occs.slice(-4).map(o => "  * [" + o.date + "] " + o.reason + " (+" + o.points + " pts, Immediate Escalation: " + (o.immediate_escalation ? "Yes" : "No") + ")").join("\n"),
+        "",
+        "4. ACTIVE CORRECTIVE DELIVERABLES & STATUS:",
+        state.actions.length === 0 ? "  * No existing action items currently assigned." : state.actions.map(a => "  * " + a.task_name + " | Priority: " + a.priority + " | Due: " + a.due_date + " | Status: " + a.status).join("\n"),
+        "",
+        "5. MANDATORY CORRECTIVE OBJECTIVES:",
+        "  1. Complete all assigned action items on or before their due dates to prevent +1 pt automated penalties.",
+        "  2. Achieve an evaluated score of at least 3.50 across all flagged competencies during the next 4 evaluation cycles.",
+        "  3. Maintain zero unexcused missed deadlines and adhere strictly to standard supervisory workflows.",
+        "",
+        "6. ACKNOWLEDGMENT & PROGRESSIVE DISCIPLINARY POLICY:",
+        "Failure to show immediate and sustained improvement or accrual of additional disciplinary points will result in escalation to the next tier of progressive discipline, up to and including Final Warning or review for separation of employment.",
+        "",
+        "Employee Signature: ___________________________    Date: ______________",
+        "Supervisor Signature: _________________________    Date: ______________"
+      ].join("\n");
+    }
+
+    function generateLocalFallbackRemediation(name, type, state) {
+      const compEntries = Object.entries(state.netScores).map(([k, v]) => ({ key: k, net: v }));
+      compEntries.sort((a, b) => a.net - b.net);
+      const lowest = compEntries.slice(0, 3);
+
+      const targetComp1 = lowest[0] ? lowest[0].key.replace(/_/g, ' ') : "Quality of Work";
+      const targetComp2 = lowest[1] ? lowest[1].key.replace(/_/g, ' ') : "Efficiency";
+      const targetComp3 = lowest[2] ? lowest[2].key.replace(/_/g, ' ') : "Communication";
+
+      return [
+        {
+          task_name: "Complete Standardized Workflow & Quality Checklist Audit",
+          targeted_competency: targetComp1,
+          rationale: "Directly targets deficit in " + targetComp1 + ". Requires daily supervisory spot-checks.",
+          priority: "High",
+          due_in_days: 7
+        },
+        {
+          task_name: "Attend 1-on-1 SOP Calibration & Task Prioritization Session",
+          targeted_competency: targetComp2,
+          rationale: "Direct review with supervisor to address bottlenecks and establish milestone check-ins.",
+          priority: "Medium",
+          due_in_days: 10
+        },
+        {
+          task_name: "Submit Weekly Self-Assessment & Deliverables Log",
+          targeted_competency: targetComp3,
+          rationale: "Reinforces proactive updates and ensures transparency before deadlines lapse.",
+          priority: "Medium",
+          due_in_days: 14
+        }
+      ];
+    }
+
+    function generateLocalFallbackIncidentPolish(rawText, targetType, comps) {
+      const lower = rawText.toLowerCase();
+      let pts = 1;
+      const impacts = [];
+
+      if (lower.includes("repeated") || lower.includes("insubordinat") || lower.includes("gross") || lower.includes("failed completely")) {
+        pts = 4;
+      } else if (lower.includes("multiple") || lower.includes("overdue") || lower.includes("second time") || lower.includes("again")) {
+        pts = 3;
+      } else if (lower.includes("reminder") || lower.includes("follow-up") || lower.includes("warned")) {
+        pts = 2;
+      }
+
+      if (lower.includes("qualit") || lower.includes("error") || lower.includes("mistake") || lower.includes("defect")) impacts.push(1);
+      if (lower.includes("efficien") || lower.includes("slow") || lower.includes("output") || lower.includes("deliver")) impacts.push(2);
+      if (lower.includes("team") || lower.includes("collaborat") || lower.includes("assist")) impacts.push(3);
+      if (lower.includes("comm") || lower.includes("updat") || lower.includes("unnotif") || lower.includes("report")) impacts.push(4);
+      if (lower.includes("problem") || lower.includes("resolv") || lower.includes("troubleshoot")) impacts.push(5);
+      if (lower.includes("strateg") || lower.includes("plan") || lower.includes("vision")) impacts.push(6);
+
+      if (impacts.length === 0) impacts.push(1, 2);
+
+      const cleaned = rawText.charAt(0).toUpperCase() + rawText.slice(1).trim();
+      const polished = "Documented operational infraction: " + cleaned + ". The subject failed to meet established operational standards resulting in an unexcused delay and impact to expected team deliverables.";
+
+      return {
+        polished_reason: polished,
+        recommended_points: pts,
+        impacted_competency_indices: impacts,
+        explanation: "Classified as " + pts + " Pt(s) based on incident severity rubric and keyword impact analysis."
+      };
+    }
+
+    function generateLocalFallbackExecutiveReport() {
+      const activeOps = (appState.employees || []).filter(e => e.active !== false);
+      const activeLeads = (appState.leads || []).filter(l => l.active !== false);
+      const opStates = activeOps.map(op => computeEntityState(op.name, 'operator'));
+      const atRiskOps = opStates.filter(s => s.totalPoints >= 20);
+      const totalTasks = (appState.weekly_logs || []).reduce((acc, c) => acc + (parseInt(c.tasks_completed) || 0), 0);
+      const totalOccs = (appState.manual_occurrences || []).length + (appState.lead_manual_occurrences || []).length;
+      const totalOverdue = opStates.reduce((acc, s) => acc + s.automatedPoints, 0);
+      const riskPct = Math.round((atRiskOps.length / (activeOps.length || 1)) * 100);
+
+      return [
+        "EXECUTIVE OPERATIONAL DIAGNOSIS & DISCIPLINARY HEALTH ASSESSMENT",
+        "",
+        "1. OPERATIONAL RISK ASSESSMENT",
+        "The organization currently tracks " + activeOps.length + " active operators and " + activeLeads.length + " team leads. Total production volume stands at " + totalTasks.toLocaleString() + " completed tasks with " + totalOccs + " total counseling incidents logged. Currently, " + atRiskOps.length + " out of " + activeOps.length + " operators (" + riskPct + "%) are operating within progressive warning tiers (Oral Warning or higher).",
+        "",
+        "2. SUPERVISORY HOTSPOTS & BOTTLENECKS",
+        "A primary driver of disciplinary risk is automated overdue task accumulation (" + totalOverdue + " active past-due deliverables). Personnel who accumulate multiple overdue items face compound risk under the Disciplinary Matrix rubric (+1 pt per overdue item). Immediate supervisory focus must be placed on clearing aging deliverables to halt point accruals.",
+        "",
+        "3. STRATEGIC LEADERSHIP RECOMMENDATIONS",
+        "- Initiate mandatory weekly calibration check-ins between Team Leads and all personnel in Warning tiers.",
+        "- Audit overdue action plans and re-baseline deliverable dates where systemic roadblocks exist.",
+        "- Standardize evaluation cadence to ensure rolling 6-competency net baselines remain representative of recent performance improvements."
+      ].join("\n");
+    }
+
+    // Modern Toast Helper
+    function showAppToast(message, type) {
+      if (type === undefined) type = 'info';
+      const container = document.getElementById("toast-container");
+      if (!container) return;
+
+      const toast = document.createElement("div");
+      const colors = {
+        success: "bg-emerald-800 text-white border-emerald-600",
+        error: "bg-rose-800 text-white border-rose-600",
+        warning: "bg-amber-800 text-white border-amber-600",
+        info: "bg-slate-800 text-white border-slate-600"
+      };
+      const icons = {
+        success: "fa-circle-check text-emerald-300",
+        error: "fa-circle-exclamation text-rose-300",
+        warning: "fa-triangle-exclamation text-amber-300",
+        info: "fa-circle-info text-blue-300"
+      };
+
+      const colorClass = colors[type] || colors.info;
+      const iconClass = icons[type] || icons.info;
+
+      toast.className = colorClass + " border px-4 py-3 rounded-xl shadow-xl flex items-center space-x-3 text-xs pointer-events-auto transform transition-all duration-300 translate-y-2 opacity-0 max-w-sm";
+      toast.innerHTML = '<i class="fa-solid ' + iconClass + ' text-sm"></i>' +
+        '<span class="flex-1 font-medium">' + message + '</span>' +
+        '<button onclick="this.parentElement.remove()" class="text-slate-300 hover:text-white"><i class="fa-solid fa-xmark"></i></button>';
+
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.remove("translate-y-2", "opacity-0");
+      }, 10);
+      setTimeout(() => {
+        toast.classList.add("translate-y-2", "opacity-0");
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // ==========================================
+    // 2.7 GEMINI PROMPT COMPILER & WEB INTEGRATION
+    // ==========================================
+    function openAIMemoModal(name, type) {
+      if (!name) return;
+      currentAIRemedTarget = { name: name, type: type };
+
+      const roleBadge = (type === 'operator') ? 'Operator' : 'Team Lead';
+      document.getElementById("ai-memo-target-subtitle").innerText = name + " (" + roleBadge + ")";
+      document.getElementById("ai-memo-modal").classList.remove("hidden");
+      generateAIMemo();
+    }
+
+    function closeAIMemoModal() {
+      document.getElementById("ai-memo-modal").classList.add("hidden");
+    }
+
+    function generateAIMemo() {
+      const name = currentAIRemedTarget.name;
+      const type = currentAIRemedTarget.type;
+      if (!name) return;
+
+      const state = computeEntityState(name, type);
+      const docType = document.getElementById("ai-memo-doc-type").value;
+      const tone = document.getElementById("ai-memo-tone").value;
+      const outputTextarea = document.getElementById("ai-memo-output");
+      const loading = document.getElementById("ai-memo-loading");
+      const runBtn = document.getElementById("btn-run-ai-memo");
+
+      loading.classList.remove("hidden");
+      runBtn.disabled = true;
+
+      const compEntries = Object.entries(state.netScores).map(([k, v]) => ({ key: k, net: v, base: state.baseScores[k], deduction: state.deductions[k] }));
+      compEntries.sort((a, b) => a.net - b.net);
+      const lowestComps = compEntries.slice(0, 3);
+      const roleText = (type === 'operator') ? 'Operator / Individual Contributor' : 'Team Lead / Supervisory';
+
+      lastGeneratedPrompt = [
+        "You are an expert HR Operations Director and Employee Relations Counsel.",
+        "Draft a formal HR counseling document for:",
+        "- Role Tier: " + roleText,
+        "- Personnel Name: " + name,
+        "- Current Disciplinary Status: " + state.status + " (" + state.totalPoints + " total accumulated points)",
+        "- Automated Overdue Task Points: " + state.automatedPoints,
+        "- Manual Counseling Incident Points: " + state.manualPoints,
+        "- Lowest Net Competency Ratings (Scale 1.0 - 5.0):",
+        lowestComps.map(c => "  * " + c.key.replace(/_/g, ' ') + ": Net " + c.net.toFixed(2) + " (Baseline: " + c.base.toFixed(2) + ", Deduction: -" + c.deduction + " pts)").join("\n"),
+        "- Recent Infractions / Incidents (" + state.occs.length + " total):",
+        state.occs.slice(-3).map(o => "  * [" + o.date + "] " + o.reason + " (+" + o.points + " pts, Escalated: " + (o.immediate_escalation ? "Yes" : "No") + ")").join("\n") || "  None recorded",
+        "- Active Corrective Action Items:",
+        state.actions.map(a => "  * " + a.task_name + " (Status: " + a.status + ", Due: " + a.due_date + ", Priority: " + a.priority + ")").join("\n") || "  None",
+        "",
+        "Document Format: " + docType,
+        "Tone Requirement: " + tone,
+        "Company Disciplinary Matrix Policy: 0-19 pts Good Standing, 20-39 pts Oral Warning, 40-49 pts Written Warning, 50+ pts Final Warning.",
+        "",
+        "Instructions:",
+        "1. Provide a clean, structured, and ready-to-issue document.",
+        "2. Maintain objectivity and strict legal/HR defensibility."
+      ].join("\n");
+
+      setTimeout(() => {
+        outputTextarea.value = generateLocalFallbackMemo(name, type, state, docType, tone);
+        loading.classList.add("hidden");
+        runBtn.disabled = false;
+      }, 250);
+    }
+
+    function copyMemoToClipboard() {
+      const output = document.getElementById("ai-memo-output").value;
+      if (!output) return;
+      navigator.clipboard.writeText(output).then(() => {
+        showAppToast("Memo copied to clipboard!", "success");
+      });
+    }
+
+    function openMemoInGemini() {
+      const promptToUse = lastGeneratedPrompt || document.getElementById("ai-memo-output").value;
+      navigator.clipboard.writeText(promptToUse).then(() => {
+        showAppToast("Full prompt copied to clipboard! Opening Gemini...", "info");
+        window.open("https://gemini.google.com/app", "_blank");
+      });
+    }
+
+    function openAIRemediationModal(name, type) {
+      if (!name) return;
+      currentAIRemedTarget = { name: name, type: type };
+
+      const roleBadge = (type === 'operator') ? 'Operator' : 'Team Lead';
+      document.getElementById("ai-remed-subtitle").innerText = name + " (" + roleBadge + ")";
+      document.getElementById("ai-remed-modal").classList.remove("hidden");
+      generateAIRemediation();
+    }
+
+    function closeAIRemediationModal() {
+      document.getElementById("ai-remed-modal").classList.add("hidden");
+    }
+
+    function generateAIRemediation() {
+      const name = currentAIRemedTarget.name;
+      const type = currentAIRemedTarget.type;
+      if (!name) return;
+
+      const state = computeEntityState(name, type);
+      const loading = document.getElementById("ai-remed-loading");
+      const results = document.getElementById("ai-remed-results");
+      const runBtn = document.getElementById("btn-run-ai-remed");
+
+      loading.classList.remove("hidden");
+      results.innerHTML = "";
+      runBtn.disabled = true;
+
+      function renderRemediationCards(items) {
+        results.innerHTML = "";
+        items.forEach((item) => {
+          const card = document.createElement("div");
+          card.className = "p-4 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 rounded-xl space-y-2 transition";
+          const priorityBadgeClass = (item.priority === 'High') ? 'bg-rose-100 text-rose-700' : 'bg-slate-200 text-slate-700';
+          const dueDays = item.due_in_days || 7;
+
+          card.innerHTML = [
+            '<div class="flex items-start justify-between gap-2">',
+            '  <div>',
+            '    <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold ' + priorityBadgeClass + '">' + item.priority + ' Priority</span>',
+            '    <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 ml-1">' + item.targeted_competency + '</span>',
+            '    <h4 class="text-xs font-bold text-slate-900 mt-1">' + item.task_name + '</h4>',
+            '  </div>',
+            '  <button onclick="acceptAIActionItem(\'' + encodeURIComponent(item.task_name) + '\', \'' + item.priority + '\', ' + dueDays + ', this)" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-1.5 px-3 rounded-lg shadow-sm whitespace-nowrap transition flex items-center gap-1">',
+            '    <i class="fa-solid fa-plus text-[10px]"></i> Add to Roster',
+            '  </button>',
+            '</div>',
+            '<p class="text-[11px] text-slate-600 leading-normal">' + item.rationale + '</p>',
+            '<div class="text-[10px] text-slate-400 font-mono">Suggested Due: +' + dueDays + ' days</div>'
+          ].join('');
+
+          results.appendChild(card);
+        });
+      }
+
+      setTimeout(() => {
+        const fallbackItems = generateLocalFallbackRemediation(name, type, state);
+        renderRemediationCards(fallbackItems);
+        loading.classList.add("hidden");
+        runBtn.disabled = false;
+      }, 250);
+    }
+
+    function acceptAIActionItem(encodedTask, priority, days, btnElement) {
+      const taskName = decodeURIComponent(encodedTask);
+      const name = currentAIRemedTarget.name;
+      const type = currentAIRemedTarget.type;
+      if (!name) return;
+
+      const targetList = (type === 'operator') ? appState.action_items : appState.lead_action_items;
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + (parseInt(days) || 7));
+      const dueStr = targetDate.toISOString().split('T')[0];
+
+      const newItem = {
+        id: "act-" + Date.now(),
+        entity_name: name,
+        task_name: taskName,
+        status: "Open",
+        due_date: dueStr,
+        priority: priority || "Medium"
+      };
+
+      targetList.push(newItem);
+      commitStateChanges();
+
+      if (btnElement) {
+        btnElement.disabled = true;
+        btnElement.className = "text-xs bg-slate-300 text-slate-600 font-semibold py-1.5 px-3 rounded-lg cursor-not-allowed";
+        btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Added';
+      }
+
+      showAppToast('"' + taskName + '" assigned to ' + name + '!', "success");
+
+      if (type === 'operator') {
+        renderOperatorInspector(name);
+      } else {
+        renderLeadInspector(name);
+      }
+    }
+
+    function polishIncidentNotes() {
+      const targetType = document.getElementById("occ-tier-select").value;
+      const rawText = document.getElementById("occ-reason").value.trim();
+      const btn = document.getElementById("btn-polish-incident");
+      const hintBox = document.getElementById("occ-ai-hint-box");
+      const hintText = document.getElementById("occ-ai-hint-text");
+
+      if (!rawText) {
+        showAppToast("Please enter preliminary notes or observations first.", "warning");
+        return;
+      }
+
+      const originalBtnHTML = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch anim-sync text-purple-600"></i> Polishing...';
+      btn.disabled = true;
+
+      const comps = (targetType === 'operator') ? OPERATOR_COMPETENCIES : LEAD_COMPETENCIES;
+
+      setTimeout(() => {
+        const fallback = generateLocalFallbackIncidentPolish(rawText, targetType, comps);
+
+        if (fallback.polished_reason) {
+          document.getElementById("occ-reason").value = fallback.polished_reason;
+          if (fallback.recommended_points && [1, 2, 3, 4, 5].includes(fallback.recommended_points)) {
+            document.getElementById("occ-points").value = String(fallback.recommended_points);
+          }
+
+          for (let i = 1; i <= 6; i++) {
+            const cb = document.getElementById("occ_impact_" + i);
+            if (cb) cb.checked = false;
+          }
+
+          (fallback.impacted_competency_indices || []).forEach(idx => {
+            const cb = document.getElementById("occ_impact_" + idx);
+            if (cb) cb.checked = true;
+          });
+
+          hintText.innerText = "Recommendation: Set to " + fallback.recommended_points + " Pts. " + fallback.explanation;
+          hintBox.classList.remove("hidden");
+          showAppToast("Incident notes polished and classified!", "success");
+        }
+
+        btn.innerHTML = originalBtnHTML;
+        btn.disabled = false;
+      }, 250);
+    }
+
+    function generateExecutiveReport() {
+      const container = document.getElementById("ai-brief-container");
+      const loading = document.getElementById("ai-brief-loading");
+      const content = document.getElementById("ai-brief-content");
+      const btn = document.getElementById("btn-generate-ai-brief");
+
+      container.classList.remove("hidden");
+      loading.classList.remove("hidden");
+      content.innerText = "";
+      btn.disabled = true;
+
+      const activeOps = (appState.employees || []).filter(e => e.active !== false);
+      const activeLeads = (appState.leads || []).filter(l => l.active !== false);
+      const opStates = activeOps.map(op => computeEntityState(op.name, 'operator'));
+      const leadStates = activeLeads.map(ld => computeEntityState(ld.name, 'lead'));
+
+      const atRiskOps = opStates.filter(s => s.totalPoints >= 20);
+      const atRiskLeads = leadStates.filter(s => s.totalPoints >= 20);
+      const totalTasks = (appState.weekly_logs || []).reduce((acc, c) => acc + (parseInt(c.tasks_completed) || 0), 0);
+      const totalOccs = (appState.manual_occurrences || []).length + (appState.lead_manual_occurrences || []).length;
+      const totalOverdue = opStates.reduce((acc, s) => acc + s.automatedPoints, 0) + leadStates.reduce((acc, s) => acc + s.automatedPoints, 0);
+
+      lastGeneratedExecutivePrompt = [
+        "Generate an Executive Operational Diagnosis & Disciplinary Health Assessment.",
+        "Organization Telemetry:",
+        "- Total Active Operators: " + activeOps.length,
+        "- Total Active Team Leads: " + activeLeads.length,
+        "- Total Logged Production Tasks: " + totalTasks,
+        "- Total Counseling Incidents Logged: " + totalOccs,
+        "- Total Action Items Currently Past-Due: " + totalOverdue,
+        "- Operators in Warning Tiers:",
+        atRiskOps.map(o => "  * " + o.name + ": " + o.status + " (" + o.totalPoints + " pts, Overdue: " + o.automatedPoints + ")").join("\n") || "  None - All Good Standing",
+        "- Team Leads in Warning Tiers:",
+        atRiskLeads.map(l => "  * " + l.name + ": " + l.status + " (" + l.totalPoints + " pts)").join("\n") || "  None - All Good Standing",
+        "",
+        "Format into three distinct sections: Operational Risk Assessment, Supervisory Hotspots, and Strategic Recommendations."
+      ].join("\n");
+
+      setTimeout(() => {
+        content.innerText = generateLocalFallbackExecutiveReport();
+        loading.classList.add("hidden");
+        btn.disabled = false;
+        showAppToast("Executive brief generated from organizational metrics.", "info");
+      }, 250);
+    }
+
+    function copyExecutiveBrief() {
+      const text = document.getElementById("ai-brief-content").innerText;
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        showAppToast("Executive assessment copied to clipboard!", "success");
+      });
+    }
+
+    function openExecutiveInGemini() {
+      const promptToUse = lastGeneratedExecutivePrompt || document.getElementById("ai-brief-content").innerText;
+      navigator.clipboard.writeText(promptToUse).then(() => {
+        showAppToast("Prompt copied to clipboard! Opening Gemini...", "info");
+        window.open("https://gemini.google.com/app", "_blank");
+      });
+    }
+
+    // ==========================================
+    // 2.8 UI RENDERING & COMPONENT LIFECYCLE
+    // ==========================================
+    function renderAll() {
+      renderFiltersAndSelects();
+      renderOperatorTable();
+      renderLeadTable();
+      renderAnalyticsView();
+      renderRosterSettings();
+      updateCloudInputs();
+    }
+
+    function updateCloudInputs() {
+      const url = (appState && appState.settings && appState.settings.google_sheet_url) ? appState.settings.google_sheet_url : "";
+      const interval = (appState && appState.settings && appState.settings.auto_sync_interval_mins !== undefined) ? appState.settings.auto_sync_interval_mins : 5;
+
+      const setInput = document.getElementById("settings-google-sheet-url");
+      const modInput = document.getElementById("modal-google-sheet-url");
+      const setIntervalSelect = document.getElementById("settings-sync-interval");
+      const modIntervalSelect = document.getElementById("modal-sync-interval");
+
+      if (setInput) setInput.value = url;
+      if (modInput) modInput.value = url;
+      if (setIntervalSelect) setIntervalSelect.value = String(interval);
+      if (modIntervalSelect) modIntervalSelect.value = String(interval);
+    }
+
+    function renderFiltersAndSelects() {
+      const leadFilter = document.getElementById("filter-lead-select");
+      const opSelect = document.getElementById("op-inspector-select");
+      const leadSelect = document.getElementById("lead-inspector-select");
+      const optGroupOps = document.getElementById("optgroup-operators-trend");
+      const optGroupLeads = document.getElementById("optgroup-leads-trend");
+
+      const activeOps = (appState.employees || []).filter(e => e.active !== false);
+      const activeLeads = (appState.leads || []).filter(l => l.active !== false);
+
+      const curLeadFilter = leadFilter.value || "ALL";
+      leadFilter.innerHTML = '<option value="ALL">All Team Leads (Organization)</option>';
+      activeLeads.forEach(ld => {
+        const opt = document.createElement("option");
+        opt.value = ld.name;
+        opt.innerText = "Lead: " + ld.name;
+        leadFilter.appendChild(opt);
+      });
+      leadFilter.value = curLeadFilter;
+
+      const curOp = opSelect.value || (activeOps[0] ? activeOps[0].name : "");
+      opSelect.innerHTML = "";
+      activeOps.forEach(op => {
+        const opt = document.createElement("option");
+        opt.value = op.name;
+        opt.innerText = op.name + " (" + (op.lead || "No Lead") + ")";
+        opSelect.appendChild(opt);
+      });
+      if (activeOps.some(o => o.name === curOp)) {
+        opSelect.value = curOp;
+      } else if (activeOps[0]) {
+        opSelect.value = activeOps[0].name;
+      }
+
+      const curLd = leadSelect.value || (activeLeads[0] ? activeLeads[0].name : "");
+      leadSelect.innerHTML = "";
+      activeLeads.forEach(ld => {
+        const opt = document.createElement("option");
+        opt.value = ld.name;
+        opt.innerText = ld.name;
+        leadSelect.appendChild(opt);
+      });
+      if (activeLeads.some(l => l.name === curLd)) {
+        leadSelect.value = curLd;
+      } else if (activeLeads[0]) {
+        leadSelect.value = activeLeads[0].name;
+      }
+
+      if (optGroupOps) {
+        optGroupOps.innerHTML = "";
+        activeOps.forEach(op => {
+          const opt = document.createElement("option");
+          opt.value = "OP:" + op.name;
+          opt.innerText = op.name;
+          optGroupOps.appendChild(opt);
+        });
+      }
+
+      if (optGroupLeads) {
+        optGroupLeads.innerHTML = "";
+        activeLeads.forEach(ld => {
+          const opt = document.createElement("option");
+          opt.value = "LEAD:" + ld.name;
+          opt.innerText = ld.name;
+          optGroupLeads.appendChild(opt);
+        });
+      }
+
+      if (opSelect.value) inspectOperator(opSelect.value);
+      if (leadSelect.value) inspectLead(leadSelect.value);
+    }
+
+    function renderOperatorTable() {
+      const selectedLead = document.getElementById("filter-lead-select").value;
+      const tbody = document.getElementById("operator-table-body");
+      tbody.innerHTML = "";
+
+      let list = (appState.employees || []).filter(e => e.active !== false);
+      if (selectedLead && selectedLead !== "ALL") {
+        list = list.filter(e => e.lead === selectedLead);
+      }
+
+      document.getElementById("operator-count-pill").innerText = list.length + " Active Operators";
+
+      list.forEach(op => {
+        const state = computeEntityState(op.name, 'operator');
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50/80 transition cursor-pointer";
+        tr.onclick = (e) => {
+          if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'I') {
+            document.getElementById("op-inspector-select").value = op.name;
+            inspectOperator(op.name);
+            document.getElementById("op-inspector-avatar").scrollIntoView({ behavior: 'smooth' });
+          }
+        };
+
+        const compCells = OPERATOR_COMPETENCIES.map(comp => {
+          const score = state.netScores[comp.key];
+          let colorClass = "text-emerald-700 bg-emerald-50 border border-emerald-200/50";
+          if (score < 3.0) colorClass = "text-rose-700 bg-rose-50 border border-rose-200/50 font-bold";
+          else if (score < 4.0) colorClass = "text-amber-800 bg-amber-50 border border-amber-200/50 font-semibold";
+
+          return '<td class="py-2.5 px-3 text-center">' +
+            '<span class="inline-block w-12 py-1 rounded text-xs font-mono ' + colorClass + '">' +
+            score.toFixed(2) +
+            '</span></td>';
+        }).join('');
+
+        const statusBadges = {
+          "Good Standing": "bg-emerald-100 text-emerald-800 border-emerald-300",
+          "Oral Warning": "bg-amber-100 text-amber-800 border-amber-300",
+          "Written Warning": "bg-orange-100 text-orange-800 border-orange-300",
+          "Final Warning": "bg-rose-100 text-rose-800 border-rose-300"
+        };
+
+        const leadDisplay = op.lead ? op.lead : '<span class="text-rose-400 italic">Unassigned</span>';
+
+        tr.innerHTML = [
+          '<td class="py-3 px-4 font-bold text-slate-900">' + op.name + '</td>',
+          '<td class="py-3 px-4 text-slate-500">' + leadDisplay + '</td>',
+          compCells,
+          '<td class="py-3 px-3 text-center font-mono font-bold text-slate-900">' + state.totalPoints + '</td>',
+          '<td class="py-3 px-4 text-center">',
+          '  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ' + (statusBadges[state.status] || 'bg-slate-100 text-slate-700') + '">' + state.status + '</span>',
+          '</td>',
+          '<td class="py-3 px-4 text-right">',
+          '  <button onclick="document.getElementById(\'op-inspector-select\').value = \'' + op.name + '\'; inspectOperator(\'' + op.name + '\');" class="text-indigo-600 hover:text-indigo-900 font-semibold text-xs flex items-center gap-1 ml-auto">',
+          '    View <i class="fa-solid fa-chevron-right text-[10px]"></i>',
+          '  </button>',
+          '</td>'
+        ].join('');
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function inspectOperator(opName) {
+      if (!opName) return;
+      const state = computeEntityState(opName, 'operator');
+      const opObj = (appState.employees || []).find(e => e.name === opName);
+
+      document.getElementById("op-inspector-name").innerText = opName;
+      document.getElementById("op-inspector-lead-badge").innerText = "Lead: " + (opObj && opObj.lead ? opObj.lead : 'Unassigned');
+      document.getElementById("op-inspector-avatar").innerText = opName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+      document.getElementById("op-card-auto-pts").innerText = state.automatedPoints;
+      document.getElementById("op-card-manual-pts").innerText = state.manualPoints;
+      document.getElementById("op-card-total-pts").innerText = state.totalPoints;
+
+      const badge = document.getElementById("op-card-status-badge");
+      const statusClasses = {
+        "Good Standing": "bg-emerald-100 text-emerald-800",
+        "Oral Warning": "bg-amber-100 text-amber-800",
+        "Written Warning": "bg-orange-100 text-orange-800",
+        "Final Warning": "bg-rose-100 text-rose-800"
+      };
+      badge.className = "px-3 py-1 rounded-full text-xs font-bold " + (statusClasses[state.status] || 'bg-slate-100 text-slate-800');
+      badge.innerText = state.status;
+
+      const actList = document.getElementById("op-action-items-list");
+      actList.innerHTML = "";
+      if (state.actions.length === 0) {
+        actList.innerHTML = '<div class="p-3 text-center text-slate-400 text-xs italic">No assigned action items</div>';
+      } else {
+        const todayStr = new Date().toISOString().split('T')[0];
+        state.actions.forEach(act => {
+          const isOverdue = (act.status !== 'Complete' && act.due_date && act.due_date < todayStr);
+          const priorityColorClass = (act.priority === 'High') ? 'text-rose-600' : 'text-slate-700';
+          const overdueBadge = isOverdue ? '<span class="px-1.5 py-0.5 rounded bg-rose-600 text-white text-[9px] font-bold uppercase tracking-wider">Overdue (+1 Pt)</span>' : '';
+          const cardClass = isOverdue ? 'bg-rose-50/70 border-rose-200' : 'bg-white border-slate-200';
+
+          const div = document.createElement("div");
+          div.className = "p-3 rounded-lg border flex items-center justify-between gap-3 text-xs " + cardClass;
+          div.innerHTML = [
+            '<div class="flex-1">',
+            '  <div class="flex items-center gap-2">',
+            '    <span class="font-bold text-slate-900">' + act.task_name + '</span>',
+            overdueBadge,
+            '  </div>',
+            '  <div class="text-[11px] text-slate-500 mt-0.5">',
+            '    Priority: <strong class="' + priorityColorClass + '">' + act.priority + '</strong> | Due: ' + (act.due_date || 'No Date'),
+            '  </div>',
+            '</div>',
+            '<div class="flex items-center space-x-2">',
+            '  <select onchange="updateTaskStatus(\'' + act.id + '\', this.value, \'operator\')" class="bg-white border border-slate-300 text-slate-800 text-[11px] rounded px-2 py-1 font-medium">',
+            '    <option value="Open" ' + (act.status === 'Open' ? 'selected' : '') + '>Open</option>',
+            '    <option value="In Progress" ' + (act.status === 'In Progress' ? 'selected' : '') + '>In Progress</option>',
+            '    <option value="Complete" ' + (act.status === 'Complete' ? 'selected' : '') + '>Complete</option>',
+            '  </select>',
+            '  <button onclick="deleteTask(\'' + act.id + '\', \'operator\')" title="Delete task" class="text-slate-400 hover:text-rose-600 p-1">',
+            '    <i class="fa-solid fa-trash text-xs"></i>',
+            '  </button>',
+            '</div>'
+          ].join('');
+
+          actList.appendChild(div);
+        });
+      }
+
+      const occBody = document.getElementById("op-incidents-table-body");
+      occBody.innerHTML = "";
+      if (state.occs.length === 0) {
+        occBody.innerHTML = '<tr><td colspan="6" class="p-3 text-center text-slate-400 italic">No counseling occurrences recorded</td></tr>';
+      } else {
+        state.occs.forEach(occ => {
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-50";
+
+          const impactedLabels = [];
+          OPERATOR_COMPETENCIES.forEach((c, idx) => {
+            if (occ["impacts_c" + (idx + 1)]) impactedLabels.push(c.label);
+          });
+
+          const escalBadge = occ.immediate_escalation ? '<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold text-[10px]">YES</span>' : '<span class="text-slate-400 font-medium">No</span>';
+
+          tr.innerHTML = [
+            '<td class="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">' + occ.date + '</td>',
+            '<td class="py-2.5 px-3 font-medium text-slate-800">' + occ.reason + '</td>',
+            '<td class="py-2.5 px-3 text-center font-mono font-bold text-rose-600">+' + occ.points + '</td>',
+            '<td class="py-2.5 px-3 text-center">' + escalBadge + '</td>',
+            '<td class="py-2.5 px-3 text-slate-600">' + (impactedLabels.join(', ') || '<span class="text-slate-400">None</span>') + '</td>',
+            '<td class="py-2.5 px-3 text-right">',
+            '  <button onclick="deleteOccurrence(\'' + occ.id + '\', \'operator\')" class="text-slate-400 hover:text-rose-600">',
+            '    <i class="fa-solid fa-trash text-xs"></i>',
+            '  </button>',
+            '</td>'
+          ].join('');
+
+          occBody.appendChild(tr);
+        });
+      }
+
+      renderOperatorRadar(state);
+    }
+
+    function renderOperatorRadar(state) {
+      const ctx = document.getElementById("opRadarChart").getContext("2d");
+      const labels = OPERATOR_COMPETENCIES.map(c => c.label);
+      const netData = OPERATOR_COMPETENCIES.map(c => state.netScores[c.key]);
+      const baseData = OPERATOR_COMPETENCIES.map(c => state.baseScores[c.key]);
+
+      if (opRadarChartInstance) {
+        opRadarChartInstance.destroy();
+      }
+
+      opRadarChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Net Rating (Deductions Applied)',
+              data: netData,
+              backgroundColor: 'rgba(99, 102, 241, 0.25)',
+              borderColor: 'rgba(99, 102, 241, 1)',
+              borderWidth: 2,
+              pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+              pointRadius: 3
+            },
+            {
+              label: 'Baseline Evaluation',
+              data: baseData,
+              backgroundColor: 'rgba(203, 213, 225, 0.2)',
+              borderColor: 'rgba(148, 163, 184, 0.8)',
+              borderWidth: 1.5,
+              borderDash: [4, 4],
+              pointRadius: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              min: 0,
+              max: 5,
+              ticks: { stepSize: 1, display: false },
+              pointLabels: { font: { size: 10, weight: '600' }, color: '#475569' }
+            }
+          },
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    function renderLeadTable() {
+      const tbody = document.getElementById("lead-table-body");
+      tbody.innerHTML = "";
+
+      const activeLeads = (appState.leads || []).filter(l => l.active !== false);
+      document.getElementById("lead-count-pill").innerText = activeLeads.length + " Active Leads";
+
+      activeLeads.forEach(ld => {
+        const state = computeEntityState(ld.name, 'lead');
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50/80 transition cursor-pointer";
+        tr.onclick = (e) => {
+          if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'I') {
+            document.getElementById("lead-inspector-select").value = ld.name;
+            inspectLead(ld.name);
+            document.getElementById("lead-inspector-avatar").scrollIntoView({ behavior: 'smooth' });
+          }
+        };
+
+        const compCells = LEAD_COMPETENCIES.map(comp => {
+          const score = state.netScores[comp.key];
+          let colorClass = "text-emerald-700 bg-emerald-50 border border-emerald-200/50";
+          if (score < 3.0) colorClass = "text-rose-700 bg-rose-50 border border-rose-200/50 font-bold";
+          else if (score < 4.0) colorClass = "text-amber-800 bg-amber-50 border border-amber-200/50 font-semibold";
+
+          return '<td class="py-2.5 px-3 text-center">' +
+            '<span class="inline-block w-12 py-1 rounded text-xs font-mono ' + colorClass + '">' +
+            score.toFixed(2) +
+            '</span></td>';
+        }).join('');
+
+        const statusBadges = {
+          "Good Standing": "bg-emerald-100 text-emerald-800 border-emerald-300",
+          "Oral Warning": "bg-amber-100 text-amber-800 border-amber-300",
+          "Written Warning": "bg-orange-100 text-orange-800 border-orange-300",
+          "Final Warning": "bg-rose-100 text-rose-800 border-rose-300"
+        };
+
+        tr.innerHTML = [
+          '<td class="py-3 px-4 font-bold text-slate-900">' + ld.name + '</td>',
+          compCells,
+          '<td class="py-3 px-3 text-center font-mono font-bold text-slate-900">' + state.totalPoints + '</td>',
+          '<td class="py-3 px-4 text-center">',
+          '  <span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ' + (statusBadges[state.status] || 'bg-slate-100 text-slate-700') + '">' + state.status + '</span>',
+          '</td>',
+          '<td class="py-3 px-4 text-right">',
+          '  <button onclick="document.getElementById(\'lead-inspector-select\').value = \'' + ld.name + '\'; inspectLead(\'' + ld.name + '\');" class="text-indigo-600 hover:text-indigo-900 font-semibold text-xs flex items-center gap-1 ml-auto">',
+          '    View <i class="fa-solid fa-chevron-right text-[10px]"></i>',
+          '  </button>',
+          '</td>'
+        ].join('');
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function inspectLead(leadName) {
+      if (!leadName) return;
+      const state = computeEntityState(leadName, 'lead');
+
+      document.getElementById("lead-inspector-name").innerText = leadName;
+      document.getElementById("lead-inspector-avatar").innerText = leadName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+      document.getElementById("lead-card-auto-pts").innerText = state.automatedPoints;
+      document.getElementById("lead-card-manual-pts").innerText = state.manualPoints;
+      document.getElementById("lead-card-total-pts").innerText = state.totalPoints;
+
+      const badge = document.getElementById("lead-card-status-badge");
+      const statusClasses = {
+        "Good Standing": "bg-emerald-100 text-emerald-800",
+        "Oral Warning": "bg-amber-100 text-amber-800",
+        "Written Warning": "bg-orange-100 text-orange-800",
+        "Final Warning": "bg-rose-100 text-rose-800"
+      };
+      badge.className = "px-3 py-1 rounded-full text-xs font-bold " + (statusClasses[state.status] || 'bg-slate-100 text-slate-800');
+      badge.innerText = state.status;
+
+      const actList = document.getElementById("lead-action-items-list");
+      actList.innerHTML = "";
+      if (state.actions.length === 0) {
+        actList.innerHTML = '<div class="p-3 text-center text-slate-400 text-xs italic">No active supervisory action plans</div>';
+      } else {
+        const todayStr = new Date().toISOString().split('T')[0];
+        state.actions.forEach(act => {
+          const isOverdue = (act.status !== 'Complete' && act.due_date && act.due_date < todayStr);
+          const priorityColorClass = (act.priority === 'High') ? 'text-rose-600' : 'text-slate-700';
+          const overdueBadge = isOverdue ? '<span class="px-1.5 py-0.5 rounded bg-rose-600 text-white text-[9px] font-bold uppercase tracking-wider">Overdue (+1 Pt)</span>' : '';
+          const cardClass = isOverdue ? 'bg-rose-50/70 border-rose-200' : 'bg-white border-slate-200';
+
+          const div = document.createElement("div");
+          div.className = "p-3 rounded-lg border flex items-center justify-between gap-3 text-xs " + cardClass;
+          div.innerHTML = [
+            '<div class="flex-1">',
+            '  <div class="flex items-center gap-2">',
+            '    <span class="font-bold text-slate-900">' + act.task_name + '</span>',
+            overdueBadge,
+            '  </div>',
+            '  <div class="text-[11px] text-slate-500 mt-0.5">',
+            '    Priority: <strong class="' + priorityColorClass + '">' + act.priority + '</strong> | Due: ' + (act.due_date || 'No Date'),
+            '  </div>',
+            '</div>',
+            '<div class="flex items-center space-x-2">',
+            '  <select onchange="updateTaskStatus(\'' + act.id + '\', this.value, \'lead\')" class="bg-white border border-slate-300 text-slate-800 text-[11px] rounded px-2 py-1 font-medium">',
+            '    <option value="Open" ' + (act.status === 'Open' ? 'selected' : '') + '>Open</option>',
+            '    <option value="In Progress" ' + (act.status === 'In Progress' ? 'selected' : '') + '>In Progress</option>',
+            '    <option value="Complete" ' + (act.status === 'Complete' ? 'selected' : '') + '>Complete</option>',
+            '  </select>',
+            '  <button onclick="deleteTask(\'' + act.id + '\', \'lead\')" title="Delete task" class="text-slate-400 hover:text-rose-600 p-1">',
+            '    <i class="fa-solid fa-trash text-xs"></i>',
+            '  </button>',
+            '</div>'
+          ].join('');
+
+          actList.appendChild(div);
+        });
+      }
+
+      const occBody = document.getElementById("lead-incidents-table-body");
+      occBody.innerHTML = "";
+      if (state.occs.length === 0) {
+        occBody.innerHTML = '<tr><td colspan="6" class="p-3 text-center text-slate-400 italic">No supervisory counseling occurrences recorded</td></tr>';
+      } else {
+        state.occs.forEach(occ => {
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-50";
+
+          const impactedLabels = [];
+          LEAD_COMPETENCIES.forEach((c, idx) => {
+            if (occ["impacts_c" + (idx + 1)]) impactedLabels.push(c.label);
+          });
+
+          const escalBadge = occ.immediate_escalation ? '<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold text-[10px]">YES</span>' : '<span class="text-slate-400 font-medium">No</span>';
+
+          tr.innerHTML = [
+            '<td class="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">' + occ.date + '</td>',
+            '<td class="py-2.5 px-3 font-medium text-slate-800">' + occ.reason + '</td>',
+            '<td class="py-2.5 px-3 text-center font-mono font-bold text-rose-600">+' + occ.points + '</td>',
+            '<td class="py-2.5 px-3 text-center">' + escalBadge + '</td>',
+            '<td class="py-2.5 px-3 text-slate-600">' + (impactedLabels.join(', ') || '<span class="text-slate-400">None</span>') + '</td>',
+            '<td class="py-2.5 px-3 text-right">',
+            '  <button onclick="deleteOccurrence(\'' + occ.id + '\', \'lead\')" class="text-slate-400 hover:text-rose-600">',
+            '    <i class="fa-solid fa-trash text-xs"></i>',
+            '  </button>',
+            '</td>'
+          ].join('');
+
+          occBody.appendChild(tr);
+        });
+      }
+
+      renderLeadRadar(state);
+    }
+
+    function renderLeadRadar(state) {
+      const ctx = document.getElementById("leadRadarChart").getContext("2d");
+      const labels = LEAD_COMPETENCIES.map(c => c.label);
+      const netData = LEAD_COMPETENCIES.map(c => state.netScores[c.key]);
+      const baseData = LEAD_COMPETENCIES.map(c => state.baseScores[c.key]);
+
+      if (leadRadarChartInstance) {
+        leadRadarChartInstance.destroy();
+      }
+
+      leadRadarChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Leadership Rating (Deductions Applied)',
+              data: netData,
+              backgroundColor: 'rgba(49, 46, 129, 0.25)',
+              borderColor: 'rgba(49, 46, 129, 1)',
+              borderWidth: 2,
+              pointBackgroundColor: 'rgba(49, 46, 129, 1)',
+              pointRadius: 3
+            },
+            {
+              label: 'Baseline Evaluations',
+              data: baseData,
+              backgroundColor: 'rgba(203, 213, 225, 0.2)',
+              borderColor: 'rgba(148, 163, 184, 0.8)',
+              borderWidth: 1.5,
+              borderDash: [4, 4],
+              pointRadius: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              min: 0,
+              max: 5,
+              ticks: { stepSize: 1, display: false },
+              pointLabels: { font: { size: 10, weight: '600' }, color: '#475569' }
+            }
+          },
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    function jumpToEntityTrend(entityName, type) {
+      if (!entityName) return;
+      switchTab('tab-analytics');
+      const select = document.getElementById("trendline-entity-select");
+      if (select) {
+        select.value = (type === 'operator' ? ("OP:" + entityName) : ("LEAD:" + entityName));
+        renderAnalyticsView();
+      }
+    }
+
+    // ==========================================
+    // 2.9 YEARLY TRENDS & ANALYTICS CHARTS
+    // ==========================================
+    function renderAnalyticsView() {
+      const scopeVal = document.getElementById("trendline-entity-select") ? document.getElementById("trendline-entity-select").value : "ALL_OPS";
+      let relevantLogs = [];
+      let isLeadTier = false;
+      let isIndividual = false;
+      let targetName = "";
+
+      if (scopeVal.startsWith("OP:")) {
+        isIndividual = true;
+        targetName = scopeVal.replace("OP:", "");
+        relevantLogs = (appState.weekly_logs || []).filter(l => l.employee_name === targetName);
+        isLeadTier = false;
+      } else if (scopeVal.startsWith("LEAD:")) {
+        isIndividual = true;
+        targetName = scopeVal.replace("LEAD:", "");
+        relevantLogs = (appState.lead_weekly_logs || []).filter(l => l.lead_name === targetName);
+        isLeadTier = true;
+      } else if (scopeVal === "ALL_LEADS") {
+        relevantLogs = appState.lead_weekly_logs || [];
+        isLeadTier = true;
+      } else {
+        relevantLogs = appState.weekly_logs || [];
+        isLeadTier = false;
+      }
+
+      let totalTasks = 0;
+      let totalOccs = 0;
+      let totalHours = 0;
+
+      if (isIndividual) {
+        totalTasks = relevantLogs.reduce((acc, c) => acc + (parseInt(c.tasks_completed) || 0), 0);
+        totalHours = relevantLogs.reduce((acc, c) => acc + (parseFloat(c.hours_logged) || 0), 0);
+        const occList = isLeadTier ? (appState.lead_manual_occurrences || []) : (appState.manual_occurrences || []);
+        totalOccs = occList.filter(o => o.entity_name === targetName).length;
+
+        document.getElementById("scorecard-tasks-label").innerText = targetName + " - Completed Tasks";
+        document.getElementById("scorecard-occs-label").innerText = targetName + " - Total Counseling Incidents";
+        document.getElementById("scorecard-hours-label").innerText = targetName + " - Total Logged Hours";
+      } else {
+        const allLogs = (appState.weekly_logs || []).concat(appState.lead_weekly_logs || []);
+        totalTasks = allLogs.reduce((acc, c) => acc + (parseInt(c.tasks_completed) || 0), 0);
+        totalHours = allLogs.reduce((acc, c) => acc + (parseFloat(c.hours_logged) || 0), 0);
+        totalOccs = (appState.manual_occurrences || []).length + (appState.lead_manual_occurrences || []).length;
+
+        document.getElementById("scorecard-tasks-label").innerText = "Total Tasks Completed";
+        document.getElementById("scorecard-occs-label").innerText = "Total Counseling Incidents";
+        document.getElementById("scorecard-hours-label").innerText = "Total Production Hours";
+      }
+
+      document.getElementById("kpi-total-tasks").innerText = totalTasks.toLocaleString();
+      document.getElementById("kpi-total-occs").innerText = totalOccs.toLocaleString();
+      document.getElementById("kpi-total-hours").innerText = totalHours.toFixed(1);
+
+      renderTimelineChart(relevantLogs, isLeadTier, isIndividual, targetName);
+      renderHoursBarChart(isIndividual, targetName, relevantLogs);
+    }
+
+    function renderTimelineChart(logs, isLeadTier, isIndividual, targetName) {
+      const ctx = document.getElementById("competencyTimelineChart").getContext("2d");
+      const titleElem = document.getElementById("trend-line-title");
+      const subElem = document.getElementById("trend-line-subtitle");
+
+      if (isIndividual) {
+        titleElem.innerText = targetName + " - Historical Competency Trajectory";
+        subElem.innerText = "Chronological evaluations for " + targetName + " across evaluation cycles";
+      } else {
+        titleElem.innerText = isLeadTier ? "Team Leads Competency Trajectory" : "Operators Competency Trajectory";
+        subElem.innerText = isLeadTier ? "Average scores across all leadership evaluations over time" : "Average scores across all operator weekly logs over time";
+      }
+
+      const dates = Array.from(new Set(logs.map(l => l.date))).sort();
+      const comps = isLeadTier ? LEAD_COMPETENCIES : OPERATOR_COMPETENCIES;
+      const palette = [
+        '#4f46e5',
+        '#059669',
+        '#d97706',
+        '#dc2626',
+        '#7c3aed',
+        '#0284c7'
+      ];
+
+      const datasets = comps.map((comp, idx) => {
+        const points = dates.map(dt => {
+          const dateLogs = logs.filter(l => l.date === dt);
+          if (dateLogs.length === 0) return null;
+          const sum = dateLogs.reduce((acc, curr) => acc + (parseFloat(curr[comp.key]) || 0), 0);
+          return (sum / dateLogs.length).toFixed(2);
+        });
+
+        return {
+          label: comp.label,
+          data: points,
+          borderColor: palette[idx % palette.length],
+          backgroundColor: palette[idx % palette.length],
+          tension: 0.3,
+          borderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6
+        };
+      });
+
+      if (competencyTimelineChartInstance) {
+        competencyTimelineChartInstance.destroy();
+      }
+
+      competencyTimelineChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: { labels: dates, datasets: datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { min: 1.0, max: 5.0, ticks: { stepSize: 0.5, font: { size: 10 } } },
+            x: { ticks: { font: { size: 10 } } }
+          },
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+          }
+        }
+      });
+    }
+
+    function renderHoursBarChart(isIndividual, targetName, individualLogs) {
+      const ctx = document.getElementById("hoursBarChart").getContext("2d");
+      const titleElem = document.getElementById("hours-bar-title");
+      const subElem = document.getElementById("hours-bar-subtitle");
+
+      let labels = [];
+      let data = [];
+      let bgColor = 'rgba(79, 70, 229, 0.85)';
+
+      if (isIndividual) {
+        titleElem.innerText = targetName + " - Weekly Hours";
+        subElem.innerText = "Hours logged per weekly evaluation cycle";
+        const sorted = individualLogs.slice().sort((a, b) => a.date.localeCompare(b.date));
+        labels = sorted.map(l => l.date);
+        data = sorted.map(l => parseFloat(l.hours_logged) || 0);
+        bgColor = 'rgba(5, 150, 105, 0.85)';
+      } else {
+        titleElem.innerText = "Hours by Assigned Lead";
+        subElem.innerText = "Total production effort grouped by supervisory team";
+        const leads = (appState.leads || []).filter(l => l.active !== false).map(l => l.name);
+        labels = leads;
+        data = leads.map(ld => {
+          const opsForLead = (appState.employees || []).filter(e => e.lead === ld).map(e => e.name);
+          const opHours = (appState.weekly_logs || []).filter(l => opsForLead.includes(l.employee_name)).reduce((acc, c) => acc + (parseFloat(c.hours_logged) || 0), 0);
+          const leadHours = (appState.lead_weekly_logs || []).filter(l => l.lead_name === ld).reduce((acc, c) => acc + (parseFloat(c.hours_logged) || 0), 0);
+          return opHours + leadHours;
+        });
+      }
+
+      if (hoursBarChartInstance) {
+        hoursBarChartInstance.destroy();
+      }
+
+      hoursBarChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Hours Logged',
+            data: data,
+            backgroundColor: bgColor,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, ticks: { font: { size: 10 } } },
+            x: { ticks: { font: { size: 10 } } }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    // ==========================================
+    // 2.10 PERSONNEL & ROSTER MANAGEMENT
+    // ==========================================
+    function renderRosterSettings() {
+      const opListElem = document.getElementById("roster-operators-list");
+      const leadListElem = document.getElementById("roster-leads-list");
+      const activeLeads = (appState.leads || []).filter(l => l.active !== false);
+
+      opListElem.innerHTML = "";
+      (appState.employees || []).forEach(emp => {
+        const div = document.createElement("div");
+        div.className = "p-3 rounded-lg border flex items-center justify-between gap-3 text-xs " + (emp.active === false ? 'bg-slate-100/70 border-slate-200 opacity-60' : 'bg-slate-50 border-slate-200');
+
+        const leadOptions = activeLeads.map(l => '<option value="' + l.name + '" ' + (l.name === emp.lead ? 'selected' : '') + '>' + l.name + '</option>').join('');
+        const offboardBadge = (emp.active === false) ? '<span class="text-[9px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded uppercase font-bold">Offboarded</span>' : '';
+
+        const actionBtns = (emp.active !== false) ?
+          '<button onclick="editOperatorName(\'' + emp.name + '\')" title="Rename" class="text-slate-400 hover:text-indigo-600 p-1.5"><i class="fa-solid fa-pen-to-square"></i></button>' +
+          '<button onclick="toggleOffboardOperator(\'' + emp.name + '\')" title="Offboard" class="text-slate-400 hover:text-rose-600 p-1.5"><i class="fa-solid fa-user-xmark"></i></button>' :
+          '<button onclick="toggleOffboardOperator(\'' + emp.name + '\')" title="Re-activate" class="text-xs text-indigo-600 hover:underline font-semibold">Reactivate</button>';
+
+        div.innerHTML = [
+          '<div class="flex-1">',
+          '  <div class="flex items-center gap-2">',
+          '    <span class="font-bold text-slate-900">' + emp.name + '</span>',
+          offboardBadge,
+          '  </div>',
+          '  <div class="flex items-center gap-2 mt-1 text-[11px] text-slate-500">',
+          '    <span>Assigned Supervisor:</span>',
+          '    <select onchange="reassignOperatorLead(\'' + emp.name + '\', this.value)" class="bg-white border border-slate-300 rounded px-1.5 py-0.5 text-[11px] font-medium" ' + (emp.active === false ? 'disabled' : '') + '>',
+          '      <option value="">-- No Lead --</option>',
+          leadOptions,
+          '    </select>',
+          '  </div>',
+          '</div>',
+          '<div class="flex items-center space-x-1">',
+          actionBtns,
+          '</div>'
+        ].join('');
+
+        opListElem.appendChild(div);
+      });
+
+      leadListElem.innerHTML = "";
+      (appState.leads || []).forEach(ld => {
+        const div = document.createElement("div");
+        div.className = "p-3 rounded-lg border flex items-center justify-between gap-3 text-xs " + (ld.active === false ? 'bg-slate-100/70 border-slate-200 opacity-60' : 'bg-slate-50 border-slate-200');
+
+        const countSubordinates = (appState.employees || []).filter(e => e.lead === ld.name && e.active !== false).length;
+        const offboardBadge = (ld.active === false) ? '<span class="text-[9px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded uppercase font-bold">Offboarded</span>' : '';
+
+        const actionBtns = (ld.active !== false) ?
+          '<button onclick="editLeadName(\'' + ld.name + '\')" title="Rename" class="text-slate-400 hover:text-indigo-600 p-1.5"><i class="fa-solid fa-pen-to-square"></i></button>' +
+          '<button onclick="toggleOffboardLead(\'' + ld.name + '\')" title="Offboard" class="text-slate-400 hover:text-rose-600 p-1.5"><i class="fa-solid fa-user-xmark"></i></button>' :
+          '<button onclick="toggleOffboardLead(\'' + ld.name + '\')" title="Reactivate" class="text-xs text-indigo-600 hover:underline font-semibold">Reactivate</button>';
+
+        div.innerHTML = [
+          '<div>',
+          '  <div class="flex items-center gap-2">',
+          '    <span class="font-bold text-slate-900">' + ld.name + '</span>',
+          offboardBadge,
+          '  </div>',
+          '  <div class="text-[11px] text-slate-500 mt-0.5">Supervising <strong>' + countSubordinates + '</strong> active operator(s)</div>',
+          '</div>',
+          '<div class="flex items-center space-x-1">',
+          actionBtns,
+          '</div>'
+        ].join('');
+
+        leadListElem.appendChild(div);
+      });
+    }
+
+    function promptAddOperator() {
+      const name = prompt("Enter new Operator Full Name:");
+      if (!name || !name.trim()) return;
+      const cleanName = name.trim();
+
+      if ((appState.employees || []).some(e => e.name.toLowerCase() === cleanName.toLowerCase())) {
+        showAppToast("An operator with this name already exists.", "warning");
+        return;
+      }
+
+      const activeLeads = (appState.leads || []).filter(l => l.active !== false);
+      const lead = activeLeads[0] ? activeLeads[0].name : "";
+
+      appState.employees.push({ name: cleanName, lead: lead, active: true });
+      commitStateChanges();
+      renderAll();
+      showAppToast('Operator "' + cleanName + '" added!', "success");
+    }
+
+    function promptAddLead() {
+      const name = prompt("Enter new Team Lead Full Name:");
+      if (!name || !name.trim()) return;
+      const cleanName = name.trim();
+
+      if ((appState.leads || []).some(l => l.name.toLowerCase() === cleanName.toLowerCase())) {
+        showAppToast("A lead with this name already exists.", "warning");
+        return;
+      }
+
+      appState.leads.push({ name: cleanName, active: true });
+      commitStateChanges();
+      renderAll();
+      showAppToast('Team Lead "' + cleanName + '" added!', "success");
+    }
+
+    function reassignOperatorLead(opName, newLead) {
+      const op = (appState.employees || []).find(e => e.name === opName);
+      if (op) {
+        op.lead = newLead;
+        commitStateChanges();
+        renderAll();
+        showAppToast("Assigned " + opName + " to " + (newLead || "No Lead"), "success");
+      }
+    }
+
+    function toggleOffboardOperator(opName) {
+      const op = (appState.employees || []).find(e => e.name === opName);
+      if (op) {
+        op.active = !op.active;
+        commitStateChanges();
+        renderAll();
+        showAppToast(opName + " is now " + (op.active ? "Active" : "Offboarded"), "info");
+      }
+    }
+
+    function toggleOffboardLead(leadName) {
+      const ld = (appState.leads || []).find(l => l.name === leadName);
+      if (ld) {
+        ld.active = !ld.active;
+        if (!ld.active) {
+          const remainingLead = (appState.leads || []).find(l => l.name !== leadName && l.active !== false);
+          (appState.employees || []).forEach(e => {
+            if (e.lead === leadName) e.lead = remainingLead ? remainingLead.name : "";
+          });
+        }
+        commitStateChanges();
+        renderAll();
+        showAppToast(leadName + " is now " + (ld.active ? "Active" : "Offboarded"), "info");
+      }
+    }
+
+    function editOperatorName(oldName) {
+      const nextName = prompt("Rename Operator:", oldName);
+      if (!nextName || !nextName.trim() || nextName.trim() === oldName) return;
+      const clean = nextName.trim();
+
+      const op = (appState.employees || []).find(e => e.name === oldName);
+      if (op) op.name = clean;
+
+      (appState.weekly_logs || []).forEach(l => { if (l.employee_name === oldName) l.employee_name = clean; });
+      (appState.manual_occurrences || []).forEach(o => { if (o.entity_name === oldName) o.entity_name = clean; });
+      (appState.action_items || []).forEach(a => { if (a.entity_name === oldName) a.entity_name = clean; });
+
+      commitStateChanges();
+      renderAll();
+      showAppToast("Renamed " + oldName + " to " + clean, "success");
+    }
+
+    function editLeadName(oldName) {
+      const nextName = prompt("Rename Team Lead:", oldName);
+      if (!nextName || !nextName.trim() || nextName.trim() === oldName) return;
+      const clean = nextName.trim();
+
+      const ld = (appState.leads || []).find(l => l.name === oldName);
+      if (ld) ld.name = clean;
+
+      (appState.employees || []).forEach(e => { if (e.lead === oldName) e.lead = clean; });
+      (appState.weekly_logs || []).forEach(l => { if (l.lead_name === oldName) l.lead_name = clean; });
+      (appState.lead_weekly_logs || []).forEach(l => { if (l.lead_name === oldName) l.lead_name = clean; });
+      (appState.lead_manual_occurrences || []).forEach(o => { if (o.entity_name === oldName) o.entity_name = clean; });
+      (appState.lead_action_items || []).forEach(a => { if (a.entity_name === oldName) a.entity_name = clean; });
+
+      commitStateChanges();
+      renderAll();
+      showAppToast("Renamed Lead " + oldName + " to " + clean, "success");
+    }
+
+    // ==========================================
+    // 2.11 TASK & INCIDENT CRUD OPERATIONS
+    // ==========================================
+    function updateTaskStatus(taskId, newStatus, tier) {
+      const list = (tier === 'operator') ? appState.action_items : appState.lead_action_items;
+      const task = list.find(t => t.id === taskId);
+      if (task) {
+        task.status = newStatus;
+        commitStateChanges();
+        if (tier === 'operator') {
+          inspectOperator(document.getElementById("op-inspector-select").value);
+        } else {
+          inspectLead(document.getElementById("lead-inspector-select").value);
+        }
+        renderOperatorTable();
+        renderLeadTable();
+        showAppToast("Action item updated!", "success");
+      }
+    }
+
+    function deleteTask(taskId, tier) {
+      if (!confirm("Are you sure you want to remove this action item?")) return;
+      if (tier === 'operator') {
+        appState.action_items = appState.action_items.filter(t => t.id !== taskId);
+        inspectOperator(document.getElementById("op-inspector-select").value);
+      } else {
+        appState.lead_action_items = appState.lead_action_items.filter(t => t.id !== taskId);
+        inspectLead(document.getElementById("lead-inspector-select").value);
+      }
+      commitStateChanges();
+      renderOperatorTable();
+      renderLeadTable();
+      showAppToast("Action item removed.", "info");
+    }
+
+    function deleteOccurrence(occId, tier) {
+      if (!confirm("Are you sure you want to delete this incident occurrence record?")) return;
+      if (tier === 'operator') {
+        appState.manual_occurrences = appState.manual_occurrences.filter(o => o.id !== occId);
+        inspectOperator(document.getElementById("op-inspector-select").value);
+      } else {
+        appState.lead_manual_occurrences = appState.lead_manual_occurrences.filter(o => o.id !== occId);
+        inspectLead(document.getElementById("lead-inspector-select").value);
+      }
+      commitStateChanges();
+      renderOperatorTable();
+      renderLeadTable();
+      renderAnalyticsView();
+      showAppToast("Counseling occurrence deleted.", "info");
+    }
+
+    // ==========================================
+    // 2.12 MODAL FORMS HANDLERS
+    // ==========================================
+    function openEvaluationModal() {
+      document.getElementById("eval-date").value = new Date().toISOString().split('T')[0];
+      updateEvaluationTierUI();
+      document.getElementById("modal-evaluation").classList.remove("hidden");
+    }
+
+    function closeEvaluationModal() {
+      document.getElementById("modal-evaluation").classList.add("hidden");
+    }
+
+    function updateEvaluationTierUI() {
+      const tier = document.getElementById("eval-tier-select").value;
+      const nameSelect = document.getElementById("eval-name-select");
+      const leadWrapper = document.getElementById("eval-lead-wrapper");
+      const leadSelect = document.getElementById("eval-lead-select");
+      const header = document.getElementById("eval-comp-header");
+
+      nameSelect.innerHTML = "";
+      leadSelect.innerHTML = "";
+
+      const activeLeads = (appState.leads || []).filter(l => l.active !== false);
+      activeLeads.forEach(l => {
+        const opt = document.createElement("option");
+        opt.value = l.name;
+        opt.innerText = l.name;
+        leadSelect.appendChild(opt);
+      });
+
+      if (tier === 'operator') {
+        leadWrapper.classList.remove("hidden");
+        header.innerText = "Operator Competencies (Scale: 1.0 - 5.0)";
+        OPERATOR_COMPETENCIES.forEach((c, idx) => {
+          document.getElementById("lbl-c" + (idx + 1)).innerText = c.label;
+        });
+
+        const activeOps = (appState.employees || []).filter(e => e.active !== false);
+        activeOps.forEach(op => {
+          const opt = document.createElement("option");
+          opt.value = op.name;
+          opt.innerText = op.name + " (" + (op.lead || "No Lead") + ")";
+          nameSelect.appendChild(opt);
+        });
+      } else {
+        leadWrapper.classList.add("hidden");
+        header.innerText = "Team Lead Leadership Competencies (Scale: 1.0 - 5.0)";
+        LEAD_COMPETENCIES.forEach((c, idx) => {
+          document.getElementById("lbl-c" + (idx + 1)).innerText = c.label;
+        });
+
+        activeLeads.forEach(ld => {
+          const opt = document.createElement("option");
+          opt.value = ld.name;
+          opt.innerText = ld.name;
+          nameSelect.appendChild(opt);
+        });
+      }
+    }
+
+    function submitEvaluation(e) {
+      e.preventDefault();
+      const tier = document.getElementById("eval-tier-select").value;
+      const targetName = document.getElementById("eval-name-select").value;
+      const date = document.getElementById("eval-date").value;
+      const tasks = parseInt(document.getElementById("eval-tasks").value) || 0;
+      const occs = parseInt(document.getElementById("eval-occs").value) || 0;
+      const hours = parseFloat(document.getElementById("eval-hours").value) || 0;
+
+      const c1 = parseFloat(document.getElementById("eval-c1").value) || 4.0;
+      const c2 = parseFloat(document.getElementById("eval-c2").value) || 4.0;
+      const c3 = parseFloat(document.getElementById("eval-c3").value) || 4.0;
+      const c4 = parseFloat(document.getElementById("eval-c4").value) || 4.0;
+      const c5 = parseFloat(document.getElementById("eval-c5").value) || 4.0;
+      const c6 = parseFloat(document.getElementById("eval-c6").value) || 4.0;
+
+      if (tier === 'operator') {
+        const leadName = document.getElementById("eval-lead-select").value;
+        appState.weekly_logs.push({
+          id: "log-" + Date.now(),
+          date: date,
+          employee_name: targetName,
+          lead_name: leadName,
+          quality_of_work: c1,
+          efficiency: c2,
+          teamwork: c3,
+          communication: c4,
+          problem_solving: c5,
+          strategic_thinking: c6,
+          tasks_completed: tasks,
+          occurrences: occs,
+          hours_logged: hours
+        });
+      } else {
+        appState.lead_weekly_logs.push({
+          id: "lead-log-" + Date.now(),
+          date: date,
+          lead_name: targetName,
+          strategic_vision: c1,
+          team_development: c2,
+          execution: c3,
+          stakeholder_management: c4,
+          innovation: c5,
+          integrity: c6,
+          tasks_completed: tasks,
+          occurrences: occs,
+          hours_logged: hours
+        });
+      }
+
+      commitStateChanges();
+      closeEvaluationModal();
+      renderAll();
+      showAppToast("Evaluation logged for " + targetName + "!", "success");
+    }
+
+    function openOccurrenceModal(preSelectName, tier) {
+      if (tier === undefined) tier = 'operator';
+      document.getElementById("occ-date").value = new Date().toISOString().split('T')[0];
+      document.getElementById("occ-tier-select").value = tier;
+      document.getElementById("occ-reason").value = "";
+      document.getElementById("occ-points").value = "1";
+      document.getElementById("occ-escalation").checked = false;
+      document.getElementById("occ-ai-hint-box").classList.add("hidden");
+
+      updateOccurrenceTierUI();
+      if (preSelectName) {
+        document.getElementById("occ-name-select").value = preSelectName;
+      }
+      document.getElementById("modal-occurrence").classList.remove("hidden");
+    }
+
+    function closeOccurrenceModal() {
+      document.getElementById("modal-occurrence").classList.add("hidden");
+    }
+
+    function updateOccurrenceTierUI() {
+      const tier = document.getElementById("occ-tier-select").value;
+      const nameSelect = document.getElementById("occ-name-select");
+      const impactContainer = document.getElementById("occ-impact-container");
+
+      nameSelect.innerHTML = "";
+      impactContainer.innerHTML = "";
+
+      const comps = (tier === 'operator') ? OPERATOR_COMPETENCIES : LEAD_COMPETENCIES;
+      const list = (tier === 'operator') ? (appState.employees || []).filter(e => e.active !== false) : (appState.leads || []).filter(l => l.active !== false);
+
+      list.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = item.name;
+        opt.innerText = item.name;
+        nameSelect.appendChild(opt);
+      });
+
+      comps.forEach((c, idx) => {
+        const div = document.createElement("div");
+        div.className = "flex items-center space-x-2";
+        div.innerHTML = [
+          '<input type="checkbox" id="occ_impact_' + (idx + 1) + '" class="w-4 h-4 text-indigo-600 rounded border-slate-300">',
+          '<label for="occ_impact_' + (idx + 1) + '" class="text-xs text-slate-700">' + c.label + '</label>'
+        ].join('');
+        impactContainer.appendChild(div);
+      });
+    }
+
+    function submitOccurrence(e) {
+      e.preventDefault();
+      const tier = document.getElementById("occ-tier-select").value;
+      const entity = document.getElementById("occ-name-select").value;
+      const date = document.getElementById("occ-date").value;
+      const points = parseInt(document.getElementById("occ-points").value) || 1;
+      const reason = document.getElementById("occ-reason").value.trim();
+      const immediate = document.getElementById("occ-escalation").checked;
+
+      const newOcc = {
+        id: "occ-" + Date.now(),
+        entity_name: entity,
+        date: date,
+        reason: reason,
+        points: points,
+        impacts_c1: document.getElementById("occ_impact_1") ? document.getElementById("occ_impact_1").checked : false,
+        impacts_c2: document.getElementById("occ_impact_2") ? document.getElementById("occ_impact_2").checked : false,
+        impacts_c3: document.getElementById("occ_impact_3") ? document.getElementById("occ_impact_3").checked : false,
+        impacts_c4: document.getElementById("occ_impact_4") ? document.getElementById("occ_impact_4").checked : false,
+        impacts_c5: document.getElementById("occ_impact_5") ? document.getElementById("occ_impact_5").checked : false,
+        impacts_c6: document.getElementById("occ_impact_6") ? document.getElementById("occ_impact_6").checked : false,
+        immediate_escalation: immediate
+      };
+
+      if (tier === 'operator') {
+        appState.manual_occurrences.push(newOcc);
+      } else {
+        appState.lead_manual_occurrences.push(newOcc);
+      }
+
+      commitStateChanges();
+      closeOccurrenceModal();
+      renderAll();
+      showAppToast("Incident logged for " + entity + " (+" + points + " pts)", "warning");
+    }
+
+    function openActionModal(preSelectName, tier) {
+      if (tier === undefined) tier = 'operator';
+      const nextWeek = new Date();
+      nextWeek.setDate(nextWeek.getDate() + 7);
+      document.getElementById("action-due").value = nextWeek.toISOString().split('T')[0];
+      document.getElementById("action-tier-select").value = tier;
+      document.getElementById("action-task").value = "";
+      document.getElementById("action-priority").value = "Medium";
+      document.getElementById("action-status").value = "Open";
+
+      updateActionTierUI();
+      if (preSelectName) {
+        document.getElementById("action-name-select").value = preSelectName;
+      }
+      document.getElementById("modal-action").classList.remove("hidden");
+    }
+
+    function closeActionModal() {
+      document.getElementById("modal-action").classList.add("hidden");
+    }
+
+    function updateActionTierUI() {
+      const tier = document.getElementById("action-tier-select").value;
+      const nameSelect = document.getElementById("action-name-select");
+      nameSelect.innerHTML = "";
+
+      const list = (tier === 'operator') ? (appState.employees || []).filter(e => e.active !== false) : (appState.leads || []).filter(l => l.active !== false);
+
+      list.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = item.name;
+        opt.innerText = item.name;
+        nameSelect.appendChild(opt);
+      });
+    }
+
+    function submitActionItem(e) {
+      e.preventDefault();
+      const tier = document.getElementById("action-tier-select").value;
+      const entity = document.getElementById("action-name-select").value;
+      const task = document.getElementById("action-task").value.trim();
+      const due = document.getElementById("action-due").value;
+      const priority = document.getElementById("action-priority").value;
+      const status = document.getElementById("action-status").value;
+
+      const newItem = {
+        id: "act-" + Date.now(),
+        entity_name: entity,
+        task_name: task,
+        status: status,
+        due_date: due,
+        priority: priority
+      };
+
+      if (tier === 'operator') {
+        appState.action_items.push(newItem);
+      } else {
+        appState.lead_action_items.push(newItem);
+      }
+
+      commitStateChanges();
+      closeActionModal();
+      renderAll();
+      showAppToast("Action item assigned to " + entity + "!", "success");
+    }
+
+    // ==========================================
+    // 2.13 CLOUD CONFIGURATION MODAL HANDLERS
+    // ==========================================
+    function openCloudConfigModal() {
+      document.getElementById("modal-cloud-config").classList.remove("hidden");
+      updateCloudInputs();
+    }
+
+    function closeCloudConfigModal() {
+      document.getElementById("modal-cloud-config").classList.add("hidden");
+    }
+
+    function saveCloudUrlFromModal() {
+      const url = document.getElementById("modal-google-sheet-url").value.trim();
+      const interval = parseInt(document.getElementById("modal-sync-interval").value);
+
+      if (!appState.settings) appState.settings = {};
+      appState.settings.google_sheet_url = url;
+      appState.settings.auto_sync_interval_mins = interval;
+
+      commitStateChanges(false);
+      closeCloudConfigModal();
+      updateCloudInputs();
+      startAutoSyncScheduler();
+      syncWithGoogleSheet();
+      showAppToast("Cloud settings and auto-sync rate saved!", "success");
+    }
+
+    function saveCloudUrlFromSettings() {
+      const url = document.getElementById("settings-google-sheet-url").value.trim();
+      if (!appState.settings) appState.settings = {};
+      appState.settings.google_sheet_url = url;
+      commitStateChanges(false);
+      updateCloudInputs();
+      syncWithGoogleSheet();
+      showAppToast("Google Sheet URL saved!", "success");
+    }
+
+    function disconnectCloudSync() {
+      if (!appState.settings) appState.settings = {};
+      appState.settings.google_sheet_url = "";
+      commitStateChanges(false);
+      closeCloudConfigModal();
+      updateCloudInputs();
+      updateCloudStatusUI("local", "Local Storage");
+      showAppToast("Cloud sync disconnected. Operating in local mode.", "info");
+    }
+
+    // ==========================================
+    // 2.14 BACKUP & DATA PORTABILITY
+    // ==========================================
+    function exportDatabaseJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "trial_counseling_tracker_" + new Date().toISOString().split('T')[0] + ".json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showAppToast("JSON database backup downloaded!", "success");
+    }
+
+    function importDatabaseJSON(e) {
+      const fileReader = new FileReader();
+      fileReader.onload = function(event) {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          if (parsed && (parsed.employees || parsed.weekly_logs)) {
+            appState = parsed;
+            commitStateChanges();
+            renderAll();
+            showAppToast("Database successfully restored from JSON!", "success");
+          } else {
+            showAppToast("Invalid file structure.", "error");
+          }
+        } catch (err) {
+          showAppToast("Could not parse JSON file.", "error");
+        }
+      };
+      if (e.target.files && e.target.files[0]) {
+        fileReader.readAsText(e.target.files[0]);
+      }
+    }
+
+    function resetToSampleData() {
+      if (!confirm("Reset database to initial sample dataset? Any custom entries will be lost.")) return;
+      appState = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      commitStateChanges();
+      renderAll();
+      showAppToast("Database re-initialized to default baseline.", "info");
+    }
+
+    // ==========================================
+    // 2.15 NAVIGATION & APP INIT
+    // ==========================================
+    function switchTab(tabId) {
+      const navMap = {
+        'tab-operators': { view: 'view-operators', nav: 'nav-operators' },
+        'tab-leads': { view: 'view-leads', nav: 'nav-leads' },
+        'tab-analytics': { view: 'view-analytics', nav: 'nav-analytics' },
+        'tab-settings': { view: 'view-settings', nav: 'nav-settings' }
+      };
+
+      Object.keys(navMap).forEach(key => {
+        const item = navMap[key];
+        const viewElem = document.getElementById(item.view);
+        const navElem = document.getElementById(item.nav);
+
+        if (key === tabId) {
+          viewElem.classList.remove("hidden");
+          navElem.className = "tab-btn py-3 px-3 border-b-2 border-indigo-500 text-white flex items-center gap-2 whitespace-nowrap";
+          const icon = navElem.querySelector("i");
+          if (icon) icon.className = icon.className.replace("text-slate-400", "text-indigo-400");
+        } else {
+          viewElem.classList.add("hidden");
+          navElem.className = "tab-btn py-3 px-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 whitespace-nowrap";
+          const icon = navElem.querySelector("i");
+          if (icon) icon.className = icon.className.replace("text-indigo-400", "text-slate-400");
+        }
+      });
+
+      if (tabId === 'tab-analytics') {
+        renderAnalyticsView();
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      initAppState();
+      renderAll();
+    });
+  </script>
+</body>
+</html>
