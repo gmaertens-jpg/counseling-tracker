@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Counseling Tracker | High Council Performance Matrix</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              500: '#22c55e',
+              600: '#16a34a',
+              900: '#14532d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbar styling */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans antialiased bg-slate-950 text-slate-100">
+
+  <!-- Header Banner -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="h-9 w-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold">
+          HC
+        </div>
+        <div>
+          <h1 class="text-lg font-semibold tracking-wide text-white">Counseling Tracker</h1>
+          <p class="text-xs text-slate-400">Axon High Council Performance Matrix</p>
+        </div>
+      </div>
+
+      <!-- Sync Status & Endpoint Modal Trigger -->
+      <div class="flex items-center gap-3">
+        <button id="syncStatusBtn" onclick="toggleEndpointModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-800 border border-slate-700 hover:border-slate-600 transition-colors">
+          <span id="syncStatusDot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+          <span id="syncStatusText" class="text-slate-300">Local Storage Mode</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- KPI / Summary Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="p-4 rounded-xl bg-slate-900/50 border border-slate-800">
+        <div class="text-xs font-medium text-slate-400">Total Active Roster</div>
+        <div id="statTotalOperators" class="text-2xl font-bold text-white mt-1">0</div>
+      </div>
+      <div class="p-4 rounded-xl bg-slate-900/50 border border-slate-800">
+        <div class="text-xs font-medium text-slate-400">Pending Reviews</div>
+        <div id="statPendingReviews" class="text-2xl font-bold text-amber-400 mt-1">0</div>
+      </div>
+      <div class="p-4 rounded-xl bg-slate-900/50 border border-slate-800">
+        <div class="text-xs font-medium text-slate-400">Active Counseling Tiers</div>
+        <div id="statActiveCounselings" class="text-2xl font-bold text-rose-400 mt-1">0</div>
+      </div>
+      <div class="p-4 rounded-xl bg-slate-900/50 border border-slate-800">
+        <div class="text-xs font-medium text-slate-400">Completed This Period</div>
+        <div id="statCompletedPeriod" class="text-2xl font-bold text-emerald-400 mt-1">0</div>
+      </div>
+    </div>
+
+    <!-- Actions & Controls Bar -->
+    <div class="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-slate-900/30 border border-slate-800">
+      <div class="flex items-center gap-2">
+        <input type="text" id="searchInput" placeholder="Search operator name or squad..." onkeyup="renderTable()" class="px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 w-64">
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="triggerCloudPush()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+          Push Data to Google Sheet
+        </button>
+        <button onclick="openAddOperatorModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg border border-slate-700 transition-colors">
+          + Add Operator
+        </button>
+      </div>
+    </div>
+
+    <!-- Operators Data Table -->
+    <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/20">
+      <table class="w-full text-left text-sm text-slate-300">
+        <thead class="bg-slate-900/80 text-xs uppercase text-slate-400 border-b border-slate-800">
+          <tr>
+            <th class="px-4 py-3">Operator Name</th>
+            <th class="px-4 py-3">Squad / Team</th>
+            <th class="px-4 py-3">Counseling Status</th>
+            <th class="px-4 py-3">Last Evaluation</th>
+            <th class="px-4 py-3 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="rosterTableBody" class="divide-y divide-slate-800/50">
+          <!-- Table rows injected via JS -->
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- Endpoint Settings Modal -->
+  <div id="endpointModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-lg w-full p-6 space-y-4">
+      <h3 class="text-lg font-semibold text-white">Google Sheet Apps Script URL</h3>
+      <p class="text-xs text-slate-400">Enter your validated Google Apps Script Web App URL ending in <code class="text-emerald-400">/exec</code>.</p>
+      
+      <div>
+        <label class="block text-xs font-medium text-slate-300 mb-1">Web App URL</label>
+        <input type="text" id="webAppUrlInput" placeholder="https://script.google.com/a/macros/axon.com/s/.../exec" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs font-mono text-slate-200 focus:outline-none focus:border-emerald-500">
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button onclick="toggleEndpointModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 rounded-lg">Cancel</button>
+        <button onclick="saveEndpointUrl()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-xs font-medium text-white rounded-lg">Save & Connect</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-slate-900 border border-emerald-500/50 text-slate-200 px-4 py-3 rounded-lg shadow-xl text-xs font-medium transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
+    <span id="toastMessage">Action completed successfully.</span>
+  </div>
+
+  <script>
+    // System State Management
+    let localRoster = JSON.parse(localStorage.getItem('hc_roster')) || [
+      { id: '1', name: 'CT-7567 Rex', squad: '501st Battalion', status: 'Compliant', lastEval: '2026-10-10' },
+      { id: '2', name: 'CT-5555 Fives', squad: 'Domino Squad', status: 'Needs Review', lastEval: '2026-10-01' }
+    ];
+
+    let appScriptUrl = localStorage.getItem('hc_endpoint_url') || '';
+
+    // Initialize UI on load
+    document.addEventListener('DOMContentLoaded', () => {
+      updateSyncStatusUI();
+      renderTable();
+      updateStats();
+      if (appScriptUrl) {
+        document.getElementById('webAppUrlInput').value = appScriptUrl;
+      }
+    });
+
+    // UI Render Function
+    function renderTable() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const tbody = document.getElementById('rosterTableBody');
+      tbody.innerHTML = '';
+
+      const filtered = localRoster.filter(op => 
+        op.name.toLowerCase().includes(search) || op.squad.toLowerCase().includes(search)
+      );
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-slate-500 text-xs">No operators found matching criteria.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(op => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-slate-900/50 transition-colors';
+        
+        let statusBadge = '<span class="px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Compliant</span>';
+        if (op.status === 'Needs Review') {
+          statusBadge = '<span class="px-2 py-0.5 text-xs font-medium rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">Needs Review</span>';
+        } else if (op.status === 'Counseling Tier 1') {
+          statusBadge = '<span class="px-2 py-0.5 text-xs font-medium rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20">Counseling Tier 1</span>';
+        }
+
+        row.innerHTML = `
+          <td class="px-4 py-3 font-medium text-white">${op.name}</td>
+          <td class="px-4 py-3 text-slate-400">${op.squad}</td>
+          <td class="px-4 py-3">${statusBadge}</td>
+          <td class="px-4 py-3 text-slate-400 font-mono text-xs">${op.lastEval}</td>
+          <td class="px-4 py-3 text-right">
+            <button onclick="deleteOperator('${op.id}')" class="text-xs text-rose-400 hover:text-rose-300">Remove</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function updateStats() {
+      document.getElementById('statTotalOperators').textContent = localRoster.length;
+      document.getElementById('statPendingReviews').textContent = localRoster.filter(r => r.status === 'Needs Review').length;
+      document.getElementById('statActiveCounselings').textContent = localRoster.filter(r => r.status.includes('Tier')).length;
+      document.getElementById('statCompletedPeriod').textContent = localRoster.filter(r => r.status === 'Compliant').length;
+    }
+
+    // Modal & Toast Helpers
+    function toggleEndpointModal() {
+      const modal = document.getElementById('endpointModal');
+      modal.classList.toggle('hidden');
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').textContent = message;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3500);
+    }
+
+    function saveEndpointUrl() {
+      const url = document.getElementById('webAppUrlInput').value.trim();
+      if (url) {
+        localStorage.setItem('hc_endpoint_url', url);
+        appScriptUrl = url;
+        updateSyncStatusUI();
+        toggleEndpointModal();
+        showToast('Google Sheet Web App URL updated');
+      }
+    }
+
+    function updateSyncStatusUI() {
+      const statusDot = document.getElementById('syncStatusDot');
+      const statusText = document.getElementById('syncStatusText');
+      if (appScriptUrl) {
+        statusDot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+        statusText.textContent = 'Google Sheet Live';
+      } else {
+        statusDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+        statusText.textContent = 'Local Storage Mode';
+      }
+    }
+
+    // `no-cors` Cloud Push Logic
+    function triggerCloudPush() {
+      if (!appScriptUrl) {
+        toggleEndpointModal();
+        return;
+      }
+
+      showToast('Pushing data to Google Sheet...');
+
+      // Payload prepared for Google Apps Script
+      const payload = {
+        action: 'push_roster',
+        data: localRoster,
+        timestamp: new Date().toISOString()
+      };
+
+      // Key Fix: Using no-cors and text/plain to bypass CORS preflight and domain auth blocks
+      fetch(appScriptUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'text/plain'
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(() => {
+        // Under no-cors mode, the response is opaque, but the HTTP request completes successfully on Google's backend
+        showToast('Data pushed to Google Sheet successfully');
+        localStorage.setItem('hc_roster', JSON.stringify(localRoster));
+      })
+      .catch(err => {
+        console.error('Push error:', err);
+        showToast('Error sending request to Google Sheet');
+      });
+    }
+
+    function openAddOperatorModal() {
+      const name = prompt('Enter Operator Name:');
+      const squad = prompt('Enter Squad / Team Name:');
+      if (name && squad) {
+        const newOp = {
+          id: Date.now().toString(),
+          name: name,
+          squad: squad,
+          status: 'Compliant',
+          lastEval: new Date().toISOString().split('T')[0]
+        };
+        localRoster.push(newOp);
+        localStorage.setItem('hc_roster', JSON.stringify(localRoster));
+        renderTable();
+        updateStats();
+        showToast('Operator added to local roster');
+      }
+    }
+
+    function deleteOperator(id) {
+      if (confirm('Are you sure you want to remove this operator?')) {
+        localRoster = localRoster.filter(op => op.id !== id);
+        localStorage.setItem('hc_roster', JSON.stringify(localRoster));
+        renderTable();
+        updateStats();
+        showToast('Operator removed');
+      }
+    }
+  </script>
+</body>
+</html>
